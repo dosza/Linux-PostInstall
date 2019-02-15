@@ -47,7 +47,25 @@ arquitetura=x86_64
 linux_version=$(cat /etc/issue.net);
 
 #esta funçao gera arquivos .list de repositórios conhecidos em /etc/apt/sources.list.d
-
+searchLineinFile(){
+	flag=0
+	if [ "$1" != "" ];then
+		if [ -e "$1" ];then
+			if [ "$2" != "" ];then
+				line="NULL"
+				#file=$1
+				while read line # read a line from
+				do
+					if [ "$line" = "$2" ];then # if current line is equal $2
+						flag=1
+						break #break loop 
+					fi
+				done < "$1"
+			fi
+		fi
+	fi
+	return $flag # return value 
+}
 MakeSourcesListD(){
 	if [ ${#mirrors[@]} = ${#repositorys[@]} ]
 		then
@@ -126,22 +144,41 @@ if [ "$permissao" = "root" ]; then
 					ubuntu_compatible="bionic"
 					;;
 				esac
-
+				lightdm_greeter_config_path="/etc/lightdm/lightdm-gtk-greeter.conf"
+				lightdm_greeter_config=(
+					"[greeter]"
+					"#background="
+					"#user-background="
+					"#theme-name="
+					"#icon-theme-name="
+					"#font-name="
+					"#xft-antialias="
+					"#xft-dpi="
+					"#xft-hintstyle="
+					"#xft-rgba="
+					"#indicators="
+					"#clock-format="
+					"keyboard=onboard"
+					"#reader="
+					"#position="
+					"#screensaver-timeout="
+				)
 				sources_list_oficial_str=(
 					"#Fonte de aplicativos apt"  
-					"deb http://ftp.br.debian.org/debian/ $debian_version main contrib non-free"  
-					"deb-src http://ftp.br.debian.org/debian/ $debian_version main contrib non-free"  
+					"deb http://ftp.us.debian.org/debian/ $debian_version main contrib non-free"  
+					"deb-src http://ftp.us.debian.org/debian/ $debian_version main contrib non-free"  
 					""  
 					"deb http://security.debian.org/ $debian_version/updates main contrib non-free"  
 					"deb-src http://security.debian.org/ $debian_version/updates main contrib non-free"  
 					""  
 					"# $debian_version-updates, previously known as 'volatile'"  
-					"deb http://ftp.br.debian.org/debian/ $debian_version-updates main contrib non-free"  
-					"deb-src http://ftp.br.debian.org/debian/ $debian_version-updates main contrib non-free"  
+					"deb http://ftp.us.debian.org/debian/ $debian_version-updates main contrib non-free"  
+					"deb-src http://ftp.us.debian.org/debian/ $debian_version-updates main contrib non-free"  
 					""  
 					"#Adiciona fontes extras ao debian"  
 					"# debian backports"  
 					"deb http://ftp.debian.org/debian $debian_version-backports main contrib non-free" 
+					"deb-src http://ftp.debian.org/debian $debian_version-backports main contrib non-free" 
 					#""  
 					#"# firefox backports"  
 					#"deb http://mozilla.debian.net/ $debian_version-backports firefox-release"  
@@ -173,13 +210,25 @@ if [ "$permissao" = "root" ]; then
 						echo "${oracle_java_source_list_str[i]}" >> /etc/apt/sources.list.d/webupd8team-java.list
 					fi
 				done
+				#procura no arquivo a linha de configuração
+				searchLineinFile $lightdm_greeter_config_path ${lightdm_greeter_config[12]}
+				#verifica-se o arquivo não está configurado
+				if [ $? = 0 ]; then
+					#escreva a configuração no arquivo!
+					for ((i=0;i<${#lightdm_greeter_config[*]};i++}))
+					do
+						echo "${lightdm_greeter_config[i]}" >> $lightdm_greeter_config_path
+					done
+				else
+					echo "lightdm está configurado!"
+				fi
 
-				apt-key adv --keyserver keyserver.ubuntu.com --recv-keys EEA14886 
+				apt-key adv --keyserver keyserver.ubuntu.com:80 --recv-keys EEA14886 
 				wget -q -O - https://dl.winehq.org/wine-builds/winehq.key  | apt-key add -
 
 
 				#
-				linux_modifications="openjdk-8-jdk icedtea-8-plugin gnome-packagekit libreoffice-l10n-pt-br myspell-pt-br mysql-community-server  epub-utils	 kinit kio kio-extras kded5"
+				linux_modifications="onboard openjdk-8-jdk icedtea-8-plugin gnome-packagekit libreoffice-l10n-pt-br myspell-pt-br mysql-community-server  epub-utils	 kinit kio kio-extras kded5"
 				apt_modifications="-t stretch-backports   "
 				apt_modifications=$apt_modifications"libreoffice libreoffice-style-breeze libreoffice-writer libreoffice-calc libreoffice-impress"
 				if [ $flag_web_browser = 0 ] ; then 
@@ -214,7 +263,7 @@ if [ "$permissao" = "root" ]; then
 		
 	games="supertux extremetuxracer gweled gnome-mahjongg "
 	mtp_spp="libmtp-common mtp-tools libmtp-dev libmtp-runtime libmtp9 python-pymtp   "
-	sdl_libs="libsdl-image-gst libsdl-ttf2.0-dev libsdl-sound1.2 libsdl-gfx1.2-dev libsdl-mixer1.2-dev "
+	sdl_libs="libsdl -image-gst libsdl-ttf2.0-dev libsdl-sound1.2 libsdl-gfx1.2-dev libsdl-mixer1.2-dev libsdl-image1.2-dev "
 	dev_tools="g++ kate mesa-utils sublime-text android-tools-fastboot android-tools-adb "
 	multimedia="vlc kde-l10n-ptbr kolourpaint4 gimp gimp-data-extras krita winff audacity  "
 	non_free="exfat-utils  exfat-fuse  rar unrar p7zip-full p7zip-rar ttf-mscorefonts-installer "
