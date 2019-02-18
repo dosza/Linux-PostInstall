@@ -76,6 +76,7 @@ MakeSourcesListD(){
 				echo ${mirrors[i]} >> ${repositorys[i]}
 
 			done
+			wget -qO - https://download.sublimetext.com/sublimehq-pub.gpg |  apt-key add -
 			wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -
 			wget -q -O - https://static.geogebra.org/linux/office@geogebra.org.gpg.key | apt-key add -
 		else
@@ -263,7 +264,7 @@ if [ "$permissao" = "root" ]; then
 		
 	games="supertux extremetuxracer gweled gnome-mahjongg "
 	mtp_spp="libmtp-common mtp-tools libmtp-dev libmtp-runtime libmtp9 python-pymtp   "
-	sdl_libs="libsdl -image-gst libsdl-ttf2.0-dev libsdl-sound1.2 libsdl-gfx1.2-dev libsdl-mixer1.2-dev libsdl-image1.2-dev "
+	sdl_libs="libsdl-image-gst libsdl-ttf2.0-dev libsdl-sound1.2 libsdl-gfx1.2-dev libsdl-mixer1.2-dev libsdl-image1.2-dev "
 	dev_tools="g++ kate mesa-utils sublime-text android-tools-fastboot android-tools-adb "
 	multimedia="vlc kde-l10n-ptbr kolourpaint4 gimp gimp-data-extras krita winff audacity  "
 	non_free="exfat-utils  exfat-fuse  rar unrar p7zip-full p7zip-rar ttf-mscorefonts-installer "
@@ -298,9 +299,7 @@ if [ "$permissao" = "root" ]; then
 				if [ $# =1 ] ; then
 					program_install=$game$mtp_spp$sdl_libs$dev_tools$multimedia$system$education
 				fi
-					;;
-
-	
+				;;
 			esac
 		done
 		
