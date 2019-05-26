@@ -1,7 +1,7 @@
 # Linux-PostInstall v0.2.0
 <p>
 	Linux-PostInstall é uma ferramenta de linha de comando que permite a automação da instalação,configuração de programas em uma distribuição Linux baseada em Debian.
-	Desenvolvido desde 22/10/2015,script com objetivo similar ao<a href="https://github.com/DanielOliveiraSouza/ufmt-cua-lab-tools"> UFMT CUA Lab Tools</a>, tem o  objetivo de tornar mais fácil a utilização do Linux.
+	Desenvolvido desde 22/10/2015,script com objetivo similar ao <a href="https://github.com/DanielOliveiraSouza/ufmt-cua-lab-tools"> UFMT CUA Lab Tools</a>, tem o  objetivo de tornar mais fácil a utilização do Linux.
 </p>
 
 **Distribuições  Oficialmente Suportadas**
@@ -38,7 +38,7 @@
 		sudo bash postinstall.sh 	--i-multimedia		Instala Softwares de multimídia
 		sudo bash postinstall.sh 	--i-education		Instala o Geogebra (atualizado)
 		sudo bash postinstall.sh 	--i-virtualbox		Instala e configura o Virtuabox (versão 6) (desde que aceite a licença)
-		<strong>Obs: alternativamente no lugar de sudo você pode usar o PKEXEC
+		<strong>Obs: alternativamente no lugar de sudo você pode usar o PKEXEC</strong>
 	</pre>
 </p>
 
