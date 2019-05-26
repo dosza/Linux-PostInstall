@@ -48,6 +48,7 @@
 	<li>Rar (implementaçao do algoritmo de descompressão)</li>
 	<li>Fontes True type Microsoft <strong> (obs: desde que aceite os termos de licença)</strong></li>
 	<li>EXFat (implementação aberta do sistema de arquivos extfat e utilitários)
+	<li>4K Video Downlaoder (software para baixar vídeos do Youtube)</li>
 </ul>
 
 	

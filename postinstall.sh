@@ -13,7 +13,7 @@ then
 	export https_proxy="https://internet.cua.ufmt.br:3128"
 	apt_opt="-o Acquire::http::Proxy=$http_proxy" 
 fi
-version="PST-USER-0.0.16"
+version="LinuxPostInstall to EndUser -v0.2.0"
 apt_list="/etc/apt/sources.list"
 apt_modifications=""
 linux_modications=""
@@ -72,6 +72,32 @@ installVirtualbox(){
 	fi
 
 
+}
+
+#Esta função simplifica o download do 4kvideodownlaoder
+install4KVideoDownloader(){
+	wget -c 'https://www.4kdownload.com/pt-br/products/product-videodownloader'
+	if [ $? != 0 ]; then
+		wget -c https://www.4kdownload.com/pt-br/products/product-videodownloader
+	fi
+	w=($(cat product-videodownloader  | grep deb | sed 's/data-href//g'  |sed 's/=//g' |sed 's/ubuntu//g' | sed 's/Ubuntu 64 bit//g' | sed 's/source=website//g' | sed 's/"//g')) #expressao que usa sed para filtrar a string
+	z=${w[0]}
+	_4kvideodownload_url=${z%\?*} #expansao que remove ? e tudo o que vier a frente dele
+	_4kvideodownload_deb=$(echo $_4kvideodownload_url | sed 's/https:\/\/dl.4kdownload.com\/app\///g') # filtra a string para remover a parte da url. \/ escape para /
+	wget  -c $_4kvideodownload_url
+	if [ $? != 0 ]; then 
+		wget  -c $_4kvideodownload_url
+	fi
+	dpkg -i $_4kvideodownload_deb
+	apt-get -f install -y 
+
+	if [ -e $_4kvideodownload_deb ]; then
+		rm $_4kvideodownload_deb
+	fi
+
+	if [ -e product-videodownloader ]; then
+		rm product-videodownloader
+	fi
 }
 #esta funçao gera arquivos .list de repositórios conhecidos em /etc/apt/sources.list.d
 searchLineinFile(){
@@ -345,7 +371,7 @@ if [ "$permissao" = "root" ]; then
 	argv=($*)
 	echo 'qtArgs'$#
 	if [ $# = 0 ]; then
-		program_install=$game$mtp_spp$sdl_libs$dev_tools$multimedia$system$education
+		program_install=${mtp_spp}${sdl_libs}${dev_tools}${multimedia}${system}
 	else
 		program_install=$program_install$non_free$system
 		for((i=0;i<$#;i++))
@@ -391,7 +417,7 @@ if [ "$permissao" = "root" ]; then
 
 
 		#fazendo o backup de mbr,,,,,,,,,,,,,,,,,,,,,,
-		dd if=/dev/sda of=backup.mbr bs=512 count=1
+		dd if=/dev/sda of=~/backup.mbr bs=512 count=1
 		
 		#Impede a invocação do apt_add_repository mesmo que exista no debian !
 		#if [ "$flag_apt" = "0" ]; then
@@ -432,8 +458,9 @@ if [ "$permissao" = "root" ]; then
 			echo 'Limpando o cache do APT...'
 			apt-get clean 
 		fi
+		install4KVideoDownloader
 
-				echo "Crie as seguintes contas: no programa usuários e grupos... pai e ester ..." 
+		echo "Crie as seguintes contas: no programa usuários e grupos... pai e ester ..." 
 		#Adiciona pai ao grupo de usuários que não precisam de senha para se conectar ao computar
 		#Altera o proprietário todos os arquivos e diretório dos usuários
 		
@@ -463,7 +490,7 @@ if [ "$permissao" = "root" ]; then
 		\rTente novamente executando este comando:\nsudo postinstall.sh\n"
 		#exit 1
 		echo "Pressione qualquer tecla para encerrar..."
-		Sleep 10
+		sleep 10
 		exit 1 
 	fi
 	
