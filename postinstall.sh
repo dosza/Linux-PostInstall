@@ -1,7 +1,7 @@
 #!/bin/bash
 # Autor: Daniel Oliveira Souza
 # Descrição: Faz a configuração de pós instalação do linux mint (ubuntu ou outro variante da família debian"
-# Versão: 0.0.16
+# Versão: 0.2.0
 #--------------------------------------------------------Variaveis --------------------------------------------------
 flag=$#
 use_proxy=0
@@ -25,19 +25,11 @@ arquitetura=$(arch)
 export DEBIAN_FRONTEND="gnome"
 program_install=""
 
+
 #caminho de arquivo
 
 
-repositorys=(
-	'/etc/apt/sources.list.d/google-chrome.list'
-	'/etc/apt/sources.list.d/sublime-text.list' 
-	'/etc/apt/sources.list.d/geogebra.list'
-)
-mirrors=(
-	'deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main' 
-	'deb https://download.sublimetext.com/ apt/stable/' 
-	'deb http://www.geogebra.net/linux/ stable main' 
-)
+
 
 #caminho do arquivo de configuração do APT para libreoffice 5
 
@@ -45,7 +37,42 @@ mirrors=(
 permissao=$(whoami)
 arquitetura=x86_64
 linux_version=$(cat /etc/issue.net);
+virtualbox_version='virtualbox-6.0'
 
+#
+installVirtualbox(){
+	apt-get install $virtualbox_version -y 
+	if [ $? != 0 ]; then 
+		apt-get install $virtualbox_version -y --allow-unauthenticated 
+	fi
+
+	vbox_ext_str=($(dpkg -l ${virtualbox_version} | grep virtualbox))
+	vbox_ext_pack_version=${vbox_ext_str[2]}
+	vbox_ext_pack_version=${vbox_ext_pack_version%\-*} #expansão remove caractere traço e tudo que vier a frente dele
+	vbox_ext_pack_url="https://download.virtualbox.org/virtualbox/${vbox_ext_pack_version}/Oracle_VM_VirtualBox_Extension_Pack-${vbox_ext_pack_version}.vbox-extpack"	
+	wget -c "${vbox_ext_pack_url}"
+	if [ $? != 0 ]; then 
+			wget -c "${vbox_ext_pack_url}"
+	fi
+	usuarios=($(cat /etc/group | grep 100 | cut -d: -f1))
+		#adiciona cada usuário ao grupo wireshark 
+	for((i=1;i<${#usuarios[@]};i++))
+	do
+	#adiciona o usuário ao grupo vboxusers
+		adduser ${usuarios[i]} vboxusers
+	done
+	
+	
+	if [ -e "Oracle_VM_VirtualBox_Extension_Pack-${vbox_ext_pack_version}.vbox-extpack" ]; then
+		echo "y" | VBoxManage extpack install --replace "Oracle_VM_VirtualBox_Extension_Pack-${vbox_ext_pack_version}.vbox-extpack"
+		rm "Oracle_VM_VirtualBox_Extension_Pack-${vbox_ext_pack_version}.vbox-extpack"
+	else 
+		echo "Não foi possível obter o virtualbox :(  Tente mais tarde!"
+		exit 1
+	fi
+
+
+}
 #esta funçao gera arquivos .list de repositórios conhecidos em /etc/apt/sources.list.d
 searchLineinFile(){
 	flag=0
@@ -67,6 +94,30 @@ searchLineinFile(){
 	return $flag # return value 
 }
 MakeSourcesListD(){
+	dist_version=$1
+	flag_debian=$2
+	repositorys=(
+		'/etc/apt/sources.list.d/google-chrome.list'
+		'/etc/apt/sources.list.d/sublime-text.list' 
+		'/etc/apt/sources.list.d/geogebra.list'
+		'/etc/apt/sources.list.d/virtualbox.list'
+	)
+
+	mirrors=(
+		'deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main' 
+		'deb https://download.sublimetext.com/ apt/stable/' 
+		'deb http://www.geogebra.net/linux/ stable main'
+		"deb https://download.virtualbox.org/virtualbox/debian ${dist_version} contrib"
+	)
+
+	apt_key_url_repository=(
+		"https://download.sublimetext.com/sublimehq-pub.gpg"
+		"https://dl-ssl.google.com/linux/linux_signing_key.pub"
+		"https://static.geogebra.org/linux/office@geogebra.org.gpg.key"
+		"https://www.virtualbox.org/download/oracle_vbox_2016.asc"
+		"https://www.virtualbox.org/download/oracle_vbox.asc"
+	)
+
 	if [ ${#mirrors[@]} = ${#repositorys[@]} ]
 		then
 			for ((i = 0 ; i < ${#repositorys[@]} ; i++))
@@ -76,9 +127,21 @@ MakeSourcesListD(){
 				echo ${mirrors[i]} >> ${repositorys[i]}
 
 			done
-			wget -qO - https://download.sublimetext.com/sublimehq-pub.gpg |  apt-key add -
-			wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -
-			wget -q -O - https://static.geogebra.org/linux/office@geogebra.org.gpg.key | apt-key add -
+
+			# wget -qO - https://download.sublimetext.com/sublimehq-pub.gpg |  apt-key add -
+			# wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -
+			# wget -q -O - https://static.geogebra.org/linux/office@geogebra.org.gpg.key | apt-key add -
+			# wget -q https://www.virtualbox.org/download/oracle_vbox_2016.asc -O- | apt-key add -
+			# wget -q https://www.virtualbox.org/download/oracle_vbox.asc -O- | apt-key add -
+			echo "Adicionando apt keys ..."
+			for((i=0;i<${#apt_key_url_repository[@]};i++))
+			do
+				wget -qO - "${apt_key_url_repository[i]}" | apt-key add -
+				if [ $? != 0 ] ; then 
+					wget -qO - "${apt_key_url_repository[i]}" | apt-key add -
+				fi
+			done
+
 		else
 			echo "|mirrors| != |repositorys|"
 		fi
@@ -91,11 +154,11 @@ if [ "$permissao" = "root" ]; then
 	linux_version=$(cat /etc/issue.net);
 	case "$arquitetura" in 
 		"x86_64")
-		MakeSourcesListD;
+		#MakeSourcesListD;
 		flag_web_browser=1;
 		;;
 		"amd64")
-		MakeSourcesListD;
+		#MakeSourcesListD;
 		flag_web_browser=1;
 	
 		;;
@@ -107,9 +170,10 @@ if [ "$permissao" = "root" ]; then
 
 		#Descobre se o a distribuição do linux você está usando 
 		case "$linux_version" in
-	        *"Linux Mint"* ) 
+	        *"Linux Mint"* )
+				MakeSourcesListD "bionic" 1
 				#executa configurações específicas para o linux mint 
-			    linux_modications=" android-tools-adb openjdk-8-jdk icedtea-plugin-8 oxygen-icon-theme-complete  libreoffice-style-breeze libreoffice libreoffice-writer libreoffice-calc libreoffice-impress "
+			    linux_modications=" android-tools-adb openjdk-8-jdk  oxygen-icon-theme-complete  libreoffice-style-breeze libreoffice libreoffice-writer libreoffice-calc libreoffice-impress "
 			    if [ $flag_web_browser = 0 ]
 			     then 
 				    web_browser="chromium-l10n chromium-browser "
@@ -119,6 +183,7 @@ if [ "$permissao" = "root" ]; then
 			    apt-add-repository ppa:libreoffice/ppa -y 
 			;;
 	        *"LMDE"*)
+				
 					#excuta configurações específicas para LInux Mint Debian 
 	             linux_modications=" android-tools-adb oxygen-icon-theme-complete "
 	             apt_modifications=" -t jessie-backports libreoffice-style-breeze libreoffice libreoffice-writer libreoffice-calc libreoffice-impress openjdk-8-jdk "
@@ -128,6 +193,8 @@ if [ "$permissao" = "root" ]; then
 			    else
 				    web_browser="google-chrome-stable "
 			    fi
+
+			    MakeSourcesListD "stretch" 0
 	        ;;
 			*"Debian"* )
 				#COnfigurações específicas para debian
@@ -139,10 +206,12 @@ if [ "$permissao" = "root" ]; then
 					*"9"*)
 					debian_version="stretch"
 					ubuntu_compatible="xenial"
+					MakeSourcesListD $debian_version 0
 					;;
 					*"Buster"*)
 					debian_version="buster"
 					ubuntu_compatible="bionic"
+					MakeSourcesListD $debian_version 0
 					;;
 				esac
 				lightdm_greeter_config_path="/etc/lightdm/lightdm-gtk-greeter.conf"
@@ -203,14 +272,17 @@ if [ "$permissao" = "root" ]; then
 					fi
 				done
 
-				for((i=0;i<${#oracle_java_source_list_str[*]};i++))
-				do
-					if [ $i = 0 ]; then 
-						echo "${oracle_java_source_list_str[i]}" > /etc/apt/sources.list.d/webupd8team-java.list
-					else
-						echo "${oracle_java_source_list_str[i]}" >> /etc/apt/sources.list.d/webupd8team-java.list
-					fi
-				done
+				# for((i=0;i<${#oracle_java_source_list_str[*]};i++))
+				# do
+				# 	if [ $i = 0 ]; then 
+				# 		echo "${oracle_java_source_list_str[i]}" > /etc/apt/sources.list.d/webupd8team-java.list
+				# 	else
+				# 		echo "${oracle_java_source_list_str[i]}" >> /etc/apt/sources.list.d/webupd8team-java.list
+				# 	fi
+				# done
+				if [ -e /etc/apt/sources.list.d/webupd8team-java.list ]; then
+					rm  /etc/apt/sources.list.d/webupd8team-java.list
+				fi
 				#procura no arquivo a linha de configuração
 				searchLineinFile $lightdm_greeter_config_path ${lightdm_greeter_config[12]}
 				#verifica-se o arquivo não está configurado
@@ -229,7 +301,7 @@ if [ "$permissao" = "root" ]; then
 
 
 				#
-				linux_modifications="onboard openjdk-8-jdk icedtea-8-plugin gnome-packagekit libreoffice-l10n-pt-br myspell-pt-br mysql-community-server  epub-utils	 kinit kio kio-extras kded5"
+				linux_modifications="onboard openjdk-8-jdk  gnome-packagekit libreoffice-l10n-pt-br myspell-pt-br mysql-community-server  epub-utils	 kinit kio kio-extras kded5"
 				apt_modifications="-t stretch-backports   "
 				apt_modifications=$apt_modifications"libreoffice libreoffice-style-breeze libreoffice-writer libreoffice-calc libreoffice-impress"
 				if [ $flag_web_browser = 0 ] ; then 
@@ -252,7 +324,7 @@ if [ "$permissao" = "root" ]; then
 
 				;;
 				*"Ubuntu"*)
-				linux_modifications=" adb openjdk-8-jdk icedtea-8-plugin libreoffice-style-breeze libreoffice libreoffice-writer libreoffice-calc libreoffice-impress "
+				linux_modifications=" adb openjdk-8-jdk  libreoffice-style-breeze libreoffice libreoffice-writer libreoffice-calc libreoffice-impress "
 				if [ $flag_web_browser = 0 ] ; then 
 					web_browser="chromium-l10n chromium-browser "
 				else
@@ -268,7 +340,7 @@ if [ "$permissao" = "root" ]; then
 	dev_tools="g++ kate mesa-utils sublime-text android-tools-fastboot android-tools-adb "
 	multimedia="vlc kde-l10n-ptbr kolourpaint4 gimp gimp-data-extras krita winff audacity  "
 	non_free="exfat-utils  exfat-fuse  rar unrar p7zip-full p7zip-rar ttf-mscorefonts-installer "
-	system=" gparted dnsmasq-base bleachbit  synaptic apt-transport-https "
+	system=" gparted dnsmasq-base bleachbit  apt-transport-https "
 	education="geogebra5 "
 	argv=($*)
 	echo 'qtArgs'$#
@@ -296,9 +368,12 @@ if [ "$permissao" = "root" ]; then
 					program_install=$program_install$education
 				;;
 				"--habilita_proxy") 
-				if [ $# =1 ] ; then
-					program_install=$game$mtp_spp$sdl_libs$dev_tools$multimedia$system$education
-				fi
+					if [ $# =1 ] ; then
+						program_install=$game$mtp_spp$sdl_libs$dev_tools$multimedia$system$education
+					fi
+				;;
+				"--i-virtualbox")
+					installVirtualbox
 				;;
 			esac
 		done
