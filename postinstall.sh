@@ -80,14 +80,21 @@ install4KVideoDownloader(){
 	if [ $? != 0 ]; then
 		wget -c https://www.4kdownload.com/pt-br/products/product-videodownloader
 	fi
-	w=($(cat product-videodownloader  | grep deb | sed 's/data-href//g'  |sed 's/=//g' |sed 's/ubuntu//g' | sed 's/Ubuntu 64 bit//g' | sed 's/source=website//g' | sed 's/"//g')) #expressao que usa sed para filtrar a string
+	w=($(cat product-videodownloader | grep 'https:\/\/dl' | grep deb | sed 's/data-href//g'  |sed 's/=//g' |sed 's/ubuntu//g' | sed 's/Ubuntu 64 bit//g' | sed 's/source=website//g' | sed 's/"//g')) #expressao que usa sed para filtrar a string
 	z=${w[0]}
+	echo "w=${w[*]}";
+	#read
 	_4kvideodownload_url=${z%\?*} #expansao que remove ? e tudo o que vier a frente dele
 	_4kvideodownload_deb=$(echo $_4kvideodownload_url | sed 's/https:\/\/dl.4kdownload.com\/app\///g') # filtra a string para remover a parte da url. \/ escape para /
 	wget  -c $_4kvideodownload_url
 	if [ $? != 0 ]; then 
 		wget  -c $_4kvideodownload_url
 	fi
+	#for((i=0;i<${#w[*]};i++))
+	#do 
+	#	echo ${w[i]}
+	#done
+	#read
 	dpkg -i $_4kvideodownload_deb
 	apt-get -f install -y 
 
