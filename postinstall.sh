@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 # Autor: Daniel Oliveira Souza
 # Descrição: Faz a configuração de pós instalação do linux mint (ubuntu ou outro variante da família debian"
 # Versão: 0.2.0
@@ -136,11 +136,20 @@ MakeSourcesListD(){
 		'/etc/apt/sources.list.d/virtualbox.list'
 	)
 
+	if [ $# = 3 ]; then
+		dist_old_stable_version=$3
+		vbox_deb_src="deb https://download.virtualbox.org/virtualbox/debian ${dist_old_stable_version} contrib"
+	else
+		vbox_deb_src="deb https://download.virtualbox.org/virtualbox/debian ${dist_version} contrib"
+	fi
+
+	#echo $vbox_deb_src;read
+
 	mirrors=(
 		'deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main' 
 		'deb https://download.sublimetext.com/ apt/stable/' 
 		'deb http://www.geogebra.net/linux/ stable main'
-		"deb https://download.virtualbox.org/virtualbox/debian ${dist_version} contrib"
+		"$vbox_deb_src"	
 	)
 
 	apt_key_url_repository=(
@@ -151,33 +160,31 @@ MakeSourcesListD(){
 		"https://www.virtualbox.org/download/oracle_vbox.asc"
 	)
 
-	if [ ${#mirrors[@]} = ${#repositorys[@]} ]
-		then
-			for ((i = 0 ; i < ${#repositorys[@]} ; i++))
-			do
-				echo "### THIS FILE IS AUTOMATICALLY CONFIGURED" > ${repositorys[i]}
-				echo "###ou may comment out this entry, but any other modifications may be lost." >> ${repositorys[i]}
-				echo ${mirrors[i]} >> ${repositorys[i]}
+	#if [ ${#mirrors[@]} = ${#repositorys[@]} ]
+	#	then
+		for ((i = 0 ; i < ${#repositorys[@]} ; i++))
+		do
+			echo "### THIS FILE IS AUTOMATICALLY CONFIGURED" > ${repositorys[i]}
+			echo "###ou may comment out this entry, but any other modifications may be lost." >> ${repositorys[i]}
+			#echo ${mirrors[i]}
+			echo ${mirrors[i]} >> ${repositorys[i]}
 
-			done
+		done
 
-			# wget -qO - https://download.sublimetext.com/sublimehq-pub.gpg |  apt-key add -
-			# wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -
-			# wget -q -O - https://static.geogebra.org/linux/office@geogebra.org.gpg.key | apt-key add -
-			# wget -q https://www.virtualbox.org/download/oracle_vbox_2016.asc -O- | apt-key add -
-			# wget -q https://www.virtualbox.org/download/oracle_vbox.asc -O- | apt-key add -
-			echo "Adicionando apt keys ..."
-			for((i=0;i<${#apt_key_url_repository[@]};i++))
-			do
+		# wget -qO - https://download.sublimetext.com/sublimehq-pub.gpg |  apt-key add -
+		# wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -
+		# wget -q -O - https://static.geogebra.org/linux/office@geogebra.org.gpg.key | apt-key add -
+		# wget -q https://www.virtualbox.org/download/oracle_vbox_2016.asc -O- | apt-key add -
+		# wget -q https://www.virtualbox.org/download/oracle_vbox.asc -O- | apt-key add -
+		echo "Adicionando apt keys ..."
+		for((i=0;i<${#apt_key_url_repository[@]};i++))
+		do
+			wget -qO - "${apt_key_url_repository[i]}" | apt-key add -
+			if [ $? != 0 ] ; then 
 				wget -qO - "${apt_key_url_repository[i]}" | apt-key add -
-				if [ $? != 0 ] ; then 
-					wget -qO - "${apt_key_url_repository[i]}" | apt-key add -
-				fi
-			done
+			fi
+		done
 
-		else
-			echo "|mirrors| != |repositorys|"
-		fi
 }
 
 #verifica se o usuário tem poderes administrativos	
@@ -236,15 +243,16 @@ if [ "$permissao" = "root" ]; then
 				debian_version=""
 				ubuntu_compatible=""
 				case "$linux_version" in 
-					*"9"*)
+					*"9."*)
 					debian_version="stretch"
 					ubuntu_compatible="xenial"
 					MakeSourcesListD $debian_version 0
 					;;
-					*"Buster"*)
+					*"10"*)
 					debian_version="buster"
 					ubuntu_compatible="bionic"
-					MakeSourcesListD $debian_version 0
+					debian_old_stable_version="stretch"
+					MakeSourcesListD $debian_version 0 $debian_old_stable_version
 					;;
 				esac
 				lightdm_greeter_config_path="/etc/lightdm/lightdm-gtk-greeter.conf"
@@ -268,14 +276,14 @@ if [ "$permissao" = "root" ]; then
 				)
 				sources_list_oficial_str=(
 					"#Fonte de aplicativos apt"  
-					"deb http://ftp.us.debian.org/debian/ $debian_version main contrib non-free"  
-					"deb-src http://ftp.us.debian.org/debian/ $debian_version main contrib non-free"  
+					"deb http://ftp.br.debian.org/debian/ $debian_version main contrib non-free"  
+					"deb-src http://ftp.br.debian.org/debian/ $debian_version main contrib non-free"  
 					""  
 					"deb http://security.debian.org/ $debian_version/updates main contrib non-free"  
 					"deb-src http://security.debian.org/ $debian_version/updates main contrib non-free"  
 					""  
 					"# $debian_version-updates, previously known as 'volatile'"  
-					"deb http://ftp.us.debian.org/debian/ $debian_version-updates main contrib non-free"  
+					"deb http://ftp.br.debian.org/debian/ $debian_version-updates main contrib non-free"  
 					"deb-src http://ftp.us.debian.org/debian/ $debian_version-updates main contrib non-free"  
 					""  
 					"#Adiciona fontes extras ao debian"  
@@ -321,7 +329,7 @@ if [ "$permissao" = "root" ]; then
 				#verifica-se o arquivo não está configurado
 				if [ $? = 0 ]; then
 					#escreva a configuração no arquivo!
-					for ((i=0;i<${#lightdm_greeter_config[*]};i++}))
+					for ((i=0;i<${#lightdm_greeter_config[*]};i++))
 					do
 						echo "${lightdm_greeter_config[i]}" >> $lightdm_greeter_config_path
 					done
@@ -334,8 +342,8 @@ if [ "$permissao" = "root" ]; then
 
 
 				#
-				linux_modifications="onboard openjdk-8-jdk  gnome-packagekit libreoffice-l10n-pt-br myspell-pt-br mysql-community-server  epub-utils	 kinit kio kio-extras kded5"
-				apt_modifications="-t stretch-backports   "
+				linux_modifications="onboard openjdk-8-jdk  gnome-packagekit libreoffice-l10n-pt-br myspell-pt-br epub-utils	 kinit kio kio-extras kded5"
+				apt_modifications="-t ${debian_version}-backports   "
 				apt_modifications=$apt_modifications"libreoffice libreoffice-style-breeze libreoffice-writer libreoffice-calc libreoffice-impress"
 				if [ $flag_web_browser = 0 ] ; then 
 					web_browser="chromium-l10n chromium"
