@@ -39,6 +39,18 @@ arquitetura=x86_64
 linux_version=$(cat /etc/issue.net);
 virtualbox_version='virtualbox-6.0'
 
+netflix_desktop=(
+	"[Desktop Entry]"
+	"Name=Netflix"
+	"Exec=/opt/google/chrome/chrome --app=\"https://netflix.com\""
+	"Comment=Asista a Netflix!"
+	"Icon=netflix-desktop"
+	"Terminal=false"
+	"Type=Application"
+	"Categories=Network;WebBrowser;"
+	"StartupWMClass=netflix.com"
+)
+
 #
 installVirtualbox(){
 	apt-get install $virtualbox_version -y 
@@ -252,7 +264,7 @@ if [ "$permissao" = "root" ]; then
 					debian_version="buster"
 					ubuntu_compatible="bionic"
 					debian_old_stable_version="stretch"
-					MakeSourcesListD $debian_version 0 $debian_old_stable_version
+					MakeSourcesListD $debian_version 0
 					;;
 				esac
 				lightdm_greeter_config_path="/etc/lightdm/lightdm-gtk-greeter.conf"
