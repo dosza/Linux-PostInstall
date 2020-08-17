@@ -6,7 +6,7 @@
 source ./common-shell.sh
 
 FLAG=$#
-VERSION="LinuxPostInstall to EndUser -v0.2.1"
+VERSION="Linux Post Install to EndUser v0.2.1"
 APT_LIST="/etc/apt/sources.list"
 APT_MODIFICATIONS=""
 LINUX_MODICATIONS=""
@@ -19,6 +19,15 @@ export DEBIAN_FRONTEND="gnome"
 PROGRAM_INSTALL=""
 LINUX_VERSION=$(cat /etc/issue.net);
 VIRTUALBOX_VERSION='virtualbox-6.0'
+GAMES="supertux extremetuxracer gweled gnome-mahjongg "
+MTP_SPP="libmtp-common mtp-tools libmtp-dev libmtp-runtime libmtp9 python-pymtp   "
+SDL_LIBS="libsdl-image-gst libsdl-ttf2.0-dev libsdl-sound1.2 libsdl-gfx1.2-dev libsdl-mixer1.2-dev libsdl-image1.2-dev "
+DEV_TOOLS="g++ kate mesa-utils sublime-text android-tools-fastboot android-tools-adb "
+MULTIMEDIA="vlc kde-l10n-ptbr kolourpaint4 gimp gimp-data-extras krita winff audacity  "
+NON_FREE="exfat-utils  exfat-fuse  rar unrar p7zip-full p7zip-rar ttf-mscorefonts-installer "
+SYSTEM=" gparted dnsmasq-base bleachbit  apt-transport-https "
+EDUCATION="geogebra5 "
+ARGV=($*)
 
 NETFLIX_DESKTOP=(
 	"[Desktop Entry]"
@@ -160,7 +169,7 @@ if [ "$UID" = "0" ]; then
 				
 					#excuta configurações específicas para LInux Mint Debian 
 	             LINUX_MODICATIONS=" android-tools-adb oxygen-icon-theme-complete "
-	             APT_MODIFICATIONS=" -t jessie-backports libreoffice-style-breeze libreoffice libreoffice-writer libreoffice-calc libreoffice-impress openjdk-8-jdk "
+	             APT_MODIFICATIONS=" -t jessie-backports libreoffice-style-breeze libreoffice libreoffice-writer libreoffice-calc libreoffice-impress openjdk-8-jre "
 
 			    MakeSourcesListD "stretch" 0
 	        ;;
@@ -263,23 +272,15 @@ if [ "$UID" = "0" ]; then
 
 				;;
 				*"Ubuntu"*)
-				LINUX_MODIFICATIONS=" adb openjdk-8-jdk  libreoffice-style-breeze libreoffice libreoffice-writer libreoffice-calc libreoffice-impress "
+				LINUX_MODIFICATIONS=" adb openjdk-8-jre  libreoffice-style-breeze libreoffice libreoffice-writer libreoffice-calc libreoffice-impress "
 
 	        ;;
 		esac
 		
-	GAMES="supertux extremetuxracer gweled gnome-mahjongg "
-	MTP_SPP="libmtp-common mtp-tools libmtp-dev libmtp-runtime libmtp9 python-pymtp   "
-	SDL_LIBS="libsdl-image-gst libsdl-ttf2.0-dev libsdl-sound1.2 libsdl-gfx1.2-dev libsdl-mixer1.2-dev libsdl-image1.2-dev "
-	DEV_TOOLS="g++ kate mesa-utils sublime-text android-tools-fastboot android-tools-adb "
-	MULTIMEDIA="vlc kde-l10n-ptbr kolourpaint4 gimp gimp-data-extras krita winff audacity  "
-	NON_FREE="exfat-utils  exfat-fuse  rar unrar p7zip-full p7zip-rar ttf-mscorefonts-installer "
-	SYSTEM=" gparted dnsmasq-base bleachbit  apt-transport-https "
-	EDUCATION="geogebra5 "
-	ARGV=($*)
+
 	echo 'qtArgs'$#
 	if [ $# = 0 ]; then
-		PROGRAM_INSTALL=${MTP_SPP}${SDL_LIBS}${DEV_TOOLS}${MULTIMEDIA}${SYSTEM}
+		PROGRAM_INSTALL=${MTP_SPP}${SDL_LIBS}${MULTIMEDIA}${SYSTEM}
 	else
 		PROGRAM_INSTALL=$PROGRAM_INSTALL$NON_FREE$SYSTEM
 		for((i=0;i<$#;i++))
@@ -303,6 +304,9 @@ if [ "$UID" = "0" ]; then
 				;;
 				"--i-virtualbox")
 					installVirtualbox
+				;;
+				"--i-dev")
+					PROGRAM_INSTALL=$PROGRAM_INSTALL${DEV_TOOLS}
 				;;
 			esac
 		done

@@ -1,5 +1,8 @@
-Linux-PostInstall v0.2.1
-====
+<h1 align="center">
+	Linux Post Install<br/>
+	<a href="https://github.com/DanielOliveiraSouza/Linux-PostInstall/archive/v0.2.1.zip"><img src="https://img.shields.io/badge/Release-v0.2.1-green">
+	</a>
+</h1>
 
 <p>
 	Linux-PostInstall é uma ferramenta de linha de comando que permite a automação da instalação e configuração de programas em uma distribuição Linux baseada em Debian.
@@ -15,14 +18,17 @@ Distribuições  Oficialmente Suportadas
 	<li>Linux Mint 19 <strong>Cinnamon</strong></li>
 </ul>		
 
-**Oque a ferramenta faz?**
+Oque a ferramenta faz?
+---
+
 <ul>
 	<li>Configura repositórios</li>
 	<li>Instala utilitários</li>
 	<li>Realiza pós-configuração</li>
 </ul> 
 
-**O que a ferramenta instala?**
+Oque a ferramenta instala?
+---
 <ul>
 	<li>Softwares de multímidia (VLC,audacity,winff,entre outros)</li>
 	<li>Editores de imagem (Gimp,kolourpaint,entre outros)</li>
@@ -31,21 +37,25 @@ Distribuições  Oficialmente Suportadas
 </ul>
 
 
-**Como usar**
-	Obs: Exige poderes de ***root***!
-	Sintaxe: sudo bash posinstall.sh [args]
-	<pre>
-		sudo bash postinstall.sh 				Instala bibliotecas e softwares úteis (incluindo o Google Chrome)
-		sudo bash postinstall.sh 	--i-mtp_spp		Instala bibliotecas MTP
-		sudo bash postinstall.sh 	--i-sdl_libs		Instala bibliotecas SDL
-		sudo bash postinstall.sh 	--i-multimedia		Instala Softwares de multimídia
-		sudo bash postinstall.sh 	--i-education		Instala o Geogebra (atualizado)
-		sudo bash postinstall.sh 	--i-virtualbox		Instala e configura o Virtuabox (versão 6) (desde que aceite a licença)
+Como usar?
+---
+Obs: Exige poderes de ***root***!
+```console
+user@pc:~$ #Sintaxe: sudo bash posinstall.sh [args]
+user@pc:~$sudo bash postinstall.sh 				#Instala bibliotecas e softwares úteis (incluindo o Google Chrome)
+user@pc:~$sudo bash postinstall.sh 	--i-mtp_spp		#Instala bibliotecas MTP
+user@pc:~$sudo bash postinstall.sh 	--i-sdl_libs		#Instala bibliotecas SDL
+user@pc:~$sudo bash postinstall.sh 	--i-multimedia		#Instala Softwares de multimídia
+user@pc:~$sudo bash postinstall.sh 	--i-education		#Instala o Geogebra (atualizado)
+user@pc:~$sudo bash postinstall.sh 	--i-virtualbox		#Instala e configura o Virtuabox (versão 6) (desde que aceite a licença)
+```
+<p>
 	</pre>
 	<strong>Obs: alternativamente no lugar de sudo você pode usar o PKEXEC</strong>
 </p>
 
-**Softwares Proprietários Instalados**
+Softwares Proprietários Instalados
+---
 <ul>
 	<li>Google Chrome</li>
 	<li>Rar (implementaçao do algoritmo de descompressão)</li>
@@ -56,14 +66,16 @@ Distribuições  Oficialmente Suportadas
 
 	
 
-**Sobre a Configuração de repositórios:**
+Sobre a Configuração de repositórios:
+---
 Esta ferramenta adiciona alguns repositórios para atualizar softwares
 <ul>
 	<li>Debian:Sobrescreve o arquivo /etc/apt/sources.list e adiciona as fontes <em>nonfree</em>,<em>contrib</em> e <em>backports</em></li>
 	<li>Ubuntu/Mint  adiciona  PPA do Libreoffice (para obter a versão mais recente dele)
 </ul>
 
-**Repositórios comuns adicionados**
+Repositórios comuns adicionados
+---
 <ul>
 	<li>Google Chrome</li>
 	<li>Geogebra (não é instalado por padrão, apenas é repositório configurado)</li>
