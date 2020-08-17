@@ -1,10 +1,14 @@
-# Linux-PostInstall v0.2.0
+Linux-PostInstall v0.2.1
+====
+
 <p>
 	Linux-PostInstall é uma ferramenta de linha de comando que permite a automação da instalação e configuração de programas em uma distribuição Linux baseada em Debian.
 	Desenvolvido desde 22/10/2015,script com objetivo similar ao <a href="https://github.com/DanielOliveiraSouza/ufmt-cua-lab-tools"> UFMT CUA Lab Tools</a>, tem o  objetivo de tornar mais fácil a utilização do Linux.
 </p>
 
-**Distribuições  Oficialmente Suportadas**
+Distribuições  Oficialmente Suportadas
+----
+
 <ul>
 	<li>Debian/GNU Linux 10</li>
 	<li>Ubuntu 18.04 LTS</li>
@@ -29,7 +33,6 @@
 
 **Como usar**
 	Obs: Exige poderes de ***root***!
-<p>
 	Sintaxe: sudo bash posinstall.sh [args]
 	<pre>
 		sudo bash postinstall.sh 				Instala bibliotecas e softwares úteis (incluindo o Google Chrome)
