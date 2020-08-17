@@ -41,7 +41,7 @@ Como usar?
 ---
 Obs: Exige poderes de ***root***!
 ```console
-user@pc:~$ #Sintaxe: sudo bash posinstall.sh [args]
+user@pc:~$#Sintaxe: sudo bash posinstall.sh [args]
 user@pc:~$sudo bash postinstall.sh 				#Instala bibliotecas e softwares úteis (incluindo o Google Chrome)
 user@pc:~$sudo bash postinstall.sh 	--i-mtp_spp		#Instala bibliotecas MTP
 user@pc:~$sudo bash postinstall.sh 	--i-sdl_libs		#Instala bibliotecas SDL
