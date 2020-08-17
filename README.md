@@ -41,13 +41,13 @@ Como usar?
 ---
 Obs: Exige poderes de ***root***!
 ```console
-user@pc:~$#Sintaxe: sudo bash posinstall.sh [args]
-user@pc:~$sudo bash postinstall.sh 				#Instala bibliotecas e softwares úteis (incluindo o Google Chrome)
-user@pc:~$sudo bash postinstall.sh 	--i-mtp_spp		#Instala bibliotecas MTP
-user@pc:~$sudo bash postinstall.sh 	--i-sdl_libs		#Instala bibliotecas SDL
-user@pc:~$sudo bash postinstall.sh 	--i-multimedia		#Instala Softwares de multimídia
-user@pc:~$sudo bash postinstall.sh 	--i-education		#Instala o Geogebra (atualizado)
-user@pc:~$sudo bash postinstall.sh 	--i-virtualbox		#Instala e configura o Virtuabox (versão 6) (desde que aceite a licença)
+user@pc:~$ #Sintaxe: sudo bash posinstall.sh [args]
+user@pc:~$ sudo bash postinstall.sh 				#Instala bibliotecas e softwares úteis (incluindo o Google Chrome)
+user@pc:~$ sudo bash postinstall.sh 	--i-mtp_spp		#Instala bibliotecas MTP
+user@pc:~$ sudo bash postinstall.sh 	--i-sdl_libs		#Instala bibliotecas SDL
+user@pc:~$ sudo bash postinstall.sh 	--i-multimedia		#Instala Softwares de multimídia
+user@pc:~$ sudo bash postinstall.sh 	--i-education		#Instala o Geogebra (atualizado)
+user@pc:~$ sudo bash postinstall.sh 	--i-virtualbox		#Instala e configura o Virtuabox (versão 6) (desde que aceite a licença)
 ```
 <p>
 	</pre>
