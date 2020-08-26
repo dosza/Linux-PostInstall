@@ -21,7 +21,7 @@ LINUX_VERSION=$(cat /etc/issue.net);
 VIRTUALBOX_VERSION='virtualbox-6.0'
 GAMES="supertux extremetuxracer gweled gnome-mahjongg "
 MTP_SPP="libmtp-common mtp-tools libmtp-dev libmtp-runtime libmtp9 python-pymtp   "
-SDL_LIBS="libsdl-image-gst libsdl-ttf2.0-dev libsdl-sound1.2 libsdl-gfx1.2-dev libsdl-mixer1.2-dev libsdl-image1.2-dev "
+SDL_LIBS="libsdl-ttf2.0-dev libsdl-sound1.2 libsdl-gfx1.2-dev libsdl-mixer1.2-dev libsdl-image1.2-dev "
 DEV_TOOLS="g++ kate mesa-utils sublime-text android-tools-fastboot android-tools-adb "
 MULTIMEDIA="vlc kde-l10n-ptbr kolourpaint4 gimp gimp-data-extras krita winff audacity  "
 NON_FREE="exfat-utils  exfat-fuse  rar unrar p7zip-full p7zip-rar ttf-mscorefonts-installer "
@@ -134,6 +134,42 @@ MakeSourcesListD(){
 		done
 
 }
+basicInstall(){
+	echo "sua string de instalação é:" $PROGRAM_INSTALL
+	echo "Este script irá configurar seu computador para o uso"
+	echo $VERSION	
+	IsFileBusy apt ${APT_LOCKS[*]}
+	#lista os programas e suas versões
+	apt-get update
+	#baixa e instala as atualizações
+	apt-get dist-upgrade  -y --allow-unauthenticated 
+	FLAG_OP=$FLAG_OP$?
+	#instal os programas listados pela variavel PROGRAM_INSTALL
+	apt-get install $PROGRAM_INSTALL -y --allow-unauthenticated 
+	FLAG_OP=$FLAG_OP$?
+	apt-get install $LINUX_MODIFICATIONS -y --allow-unauthenticated 
+	FLAG_OP=$FLAG_OP$?
+	apt-get install $APT_MODIFICATIONS -y --allow-unauthenticated 
+	FLAG_OP=$FLAG_OP$?
+
+
+	apt-get install $WEB_BROWSER -y --allow-unauthenticated 
+	FLAG_OP=$FLAG_OP$?
+	#instala as dependencias 
+	apt-get install -f -y --allow-unauthenticated 
+	FLAG_OP=$FLAG_OP$?
+	#remove programas que eu acho desnecessários, listados pela variavel $programa_remove  
+	apt-get remove $program_remove -y
+	FLAG_OP=$FLAG_OP$?
+	#remove dependencias dos programas removidos
+	apt-get autoremove -y --allow-unauthenticated 
+	#limpa o cache do apt se todas operações de instalação foram concluidas com sucesso
+	if [ "$FLAG_OP" = "0000000" ]; then
+		echo 'Limpando o cache do APT...'
+		apt-get clean 
+	fi
+	install4KVideoDownloader
+}
 
 #verifica se o usuário tem poderes administrativos	
 if [ "$UID" = "0" ]; then
@@ -141,15 +177,9 @@ if [ "$UID" = "0" ]; then
 	# decide se arquitetura 
 	LINUX_VERSION=$(cat /etc/issue.net);
 	case "$ARQUITETURA" in 
-		"x86_64")
-		#MakeSourcesListD;
-		FLAG_WEB_BROWSER=1;
-		;;
-		"amd64")
-		#MakeSourcesListD;
-		FLAG_WEB_BROWSER=1;
-	
-		;;
+		"amd64" | "x86_64" )
+			FLAG_WEB_BROWSER=1;
+			;;
 		*)
 			echo "Linux 32 bit is not longer supported"
 			exit 1;
@@ -167,12 +197,39 @@ if [ "$UID" = "0" ]; then
 			;;
 	        *"LMDE"*)
 				
-					#excuta configurações específicas para LInux Mint Debian 
-	             LINUX_MODICATIONS=" android-tools-adb oxygen-icon-theme-complete "
-	             APT_MODIFICATIONS=" -t jessie-backports libreoffice-style-breeze libreoffice libreoffice-writer libreoffice-calc libreoffice-impress openjdk-8-jre "
+				#excuta configurações específicas para LInux Mint Debian 
+	            LINUX_MODICATIONS=" android-tools-adb oxygen-icon-theme-complete "
+	            APT_MODIFICATIONS=" -t jessie-backports libreoffice-style-breeze libreoffice libreoffice-writer libreoffice-calc libreoffice-impress openjdk-8-jre "
 
 			    MakeSourcesListD "stretch" 0
 	        ;;
+            *"Deepin"*)
+                case "$LINUX_VERSION" in 
+                    *"2019"*)
+                        	DEBIAN_VERSION="buster"
+						UBUNTU_COMPATIBLE="bionic"
+						DEBIAN_OLD_STABLE_VERSION="stretch"
+						MakeSourcesListD $DEBIAN_VERSION 0
+				APT_MODIFICATIONS="libreoffice libreoffice-style-breeze libreoffice-writer libreoffice-calc libreoffice-impress "
+                        
+				LINUX_MODIFICATIONS="onboard openjdk-8-jdk  gnome-packagekit libreoffice-l10n-pt-br myspell-pt-br epub-utils	 kinit kio kio-extras kded5"
+
+				searchLineinFile "/etc/sysctl.d/99-sysctl.conf" "kernel.dmesg_restrict=0"
+				echo 'kernel.dmesg_restrict=0' | tee -a /etc/sysctl.d/99-sysctl.conf
+
+				apt_source_list_extra=(
+						"deb http://security.debian.org/ buster/updates main contrib non-free"
+						"deb-src http://security.debian.org/ buster/updates main contrib non-free"
+						"deb http://security.debian.org/ stretch/updates main contrib non-free"
+						"deb-src http://security.debian.org/ stretch/updates main contrib non-free"
+						"deb http://ftp.br.debian.org/debian/ buster-updates main contrib non-free"
+				)                  	
+                
+                WriterFileln "/etc/apt/sources.list.d/debian.list" apt_source_list_extra
+                	;;
+                esac
+
+            ;;
 			*"Debian"* )
 				#COnfigurações específicas para debian
 				#gerando o sources.list 
@@ -185,10 +242,12 @@ if [ "$UID" = "0" ]; then
 						exit 1;
 					;;
 					*"10"*)
-					DEBIAN_VERSION="buster"
-					UBUNTU_COMPATIBLE="bionic"
-					DEBIAN_OLD_STABLE_VERSION="stretch"
-					MakeSourcesListD $DEBIAN_VERSION 0
+						DEBIAN_VERSION="buster"
+						UBUNTU_COMPATIBLE="bionic"
+						DEBIAN_OLD_STABLE_VERSION="stretch"
+						MakeSourcesListD $DEBIAN_VERSION 0
+                          
+				LINUX_MODIFICATIONS="onboard openjdk-11-jre  gnome-packagekit libreoffice-l10n-pt-br myspell-pt-br epub-utils	 kinit kio kio-extras kded5"
 					;;
 				esac
 				LIGHTDM_GREETER_CONFIG_PATH="/etc/lightdm/lightdm-gtk-greeter.conf"
@@ -246,6 +305,7 @@ if [ "$UID" = "0" ]; then
 				fi
 				#procura no arquivo a linha de configuração
 				searchLineinFile $LIGHTDM_GREETER_CONFIG_PATH ${LIGHTDM_GREETER_CONFIG[12]}
+				
 				#verifica-se o arquivo não está configurado
 				if [ $? = 0 ]; then
 					#escreva a configuração no arquivo!
@@ -260,25 +320,35 @@ if [ "$UID" = "0" ]; then
 				apt-key adv --keyserver keyserver.ubuntu.com:80 --recv-keys EEA14886 
 				wget -q -O - https://dl.winehq.org/wine-builds/winehq.key  | apt-key add -
 
-
-				#
 				LINUX_MODIFICATIONS="onboard openjdk-11-jre  gnome-packagekit libreoffice-l10n-pt-br myspell-pt-br epub-utils	 kinit kio kio-extras kded5"
 				APT_MODIFICATIONS="-t ${DEBIAN_VERSION}-backports   "
 				APT_MODIFICATIONS=$APT_MODIFICATIONS"libreoffice libreoffice-style-breeze libreoffice-writer libreoffice-calc libreoffice-impress"
 
-
-				# desabilite apt-
-				FLAG_APT='1'
-
 				;;
 				*"Ubuntu"*)
-				LINUX_MODIFICATIONS=" adb openjdk-8-jre  libreoffice-style-breeze libreoffice libreoffice-writer libreoffice-calc libreoffice-impress "
+					LINUX_MODIFICATIONS=" adb openjdk-8-jre  libreoffice-style-breeze libreoffice libreoffice-writer libreoffice-calc libreoffice-impress "
 
 	        ;;
 		esac
-		
 
-	echo 'qtArgs'$#
+
+
+
+	#Altera o proprietário todos os arquivos e diretório dos usuários
+	
+	# Armazaena uma lista de usuarios cadastrados no computador 
+	#usuarios=($(cat /etc/group | grep 100 | cut -d: -f1))
+	#for((i=1 ;i<${#usuarios[@]} ;i++))
+	#do
+		#usuario_i=${usuarios[i]}
+		# Se existe o diretório do 
+		# if [ -e /home/$usuario_i ]
+		# 	then
+		# 	chown $usuario_i:$usuario_i  -R /home/$usuario_i
+		# fi
+	#done
+
+
 	if [ $# = 0 ]; then
 		PROGRAM_INSTALL=${MTP_SPP}${SDL_LIBS}${MULTIMEDIA}${SYSTEM}
 	else
@@ -304,75 +374,15 @@ if [ "$UID" = "0" ]; then
 				;;
 				"--i-virtualbox")
 					installVirtualbox
+					exit 0;
 				;;
 				"--i-dev")
 					PROGRAM_INSTALL=$PROGRAM_INSTALL${DEV_TOOLS}
 				;;
 			esac
 		done
-		
 	fi
-	echo "sua string de instalação é:" $PROGRAM_INSTALL
-
-
-	#------------------------------------------------------Fim da sessão de variaveis---------------------------------
-	# Este comando adiciona o repositório do google chrome no apt
-	echo "Este script irá configurar seu computador para o uso"
-	echo $VERSION
-# Verifica se é possivel  executar script com permissões administrativas
-
-
-		#fazendo o backup de mbr,,,,,,,,,,,,,,,,,,,,,,
-		dd if=/dev/sda of=~/backup.mbr bs=512 count=1
-		               
-		#este comando adiciona a chave do repositório do google chrome ao sistema apt 
-		
-		#lista os programas e suas versões
-		apt-get update
-		#baixa e instala as atualizações
-		apt-get dist-upgrade  -y --allow-unauthenticated 
-		FLAG_OP=$FLAG_OP$?
-		#instal os programas listados pela variavel PROGRAM_INSTALL
-		apt-get install $PROGRAM_INSTALL -y --allow-unauthenticated 
-		FLAG_OP=$FLAG_OP$?
-		apt-get install $LINUX_MODIFICATIONS -y --allow-unauthenticated 
-		FLAG_OP=$FLAG_OP$?
-		apt-get install $APT_MODIFICATIONS -y --allow-unauthenticated 
-		FLAG_OP=$FLAG_OP$?
-
-
-		apt-get install $WEB_BROWSER -y --allow-unauthenticated 
-		FLAG_OP=$FLAG_OP$?
-		#instala as dependencias 
-		apt-get install -f -y --allow-unauthenticated 
-		FLAG_OP=$FLAG_OP$?
-		#remove programas que eu acho desnecessários, listados pela variavel $programa_remove  
-		apt-get remove $program_remove -y
-		FLAG_OP=$FLAG_OP$?
-		#remove dependencias dos programas removidos
-		apt-get autoremove -y --allow-unauthenticated 
-		#limpa o cache do apt se todas operações de instalação foram concluidas com sucesso
-		if [ "$FLAG_OP" = "0000000" ]; then
-			echo 'Limpando o cache do APT...'
-			apt-get clean 
-		fi
-		install4KVideoDownloader
-
-
-		#Altera o proprietário todos os arquivos e diretório dos usuários
-		
-		# Armazaena uma lista de usuarios cadastrados no computador 
-		#usuarios=($(cat /etc/group | grep 100 | cut -d: -f1))
-		#for((i=1 ;i<${#usuarios[@]} ;i++))
-		#do
-			#usuario_i=${usuarios[i]}
-			# Se existe o diretório do 
-			# if [ -e /home/$usuario_i ]
-			# 	then
-			# 	chown $usuario_i:$usuario_i  -R /home/$usuario_i
-			# fi
-		#done
-		
+		basicInstall
 	else
 		#O comando printf é usado para fazer imprimir mensagem formatada funciona de maneira semelhante ao printf da
 		#linguagem C
@@ -383,4 +393,4 @@ if [ "$UID" = "0" ]; then
 		sleep 10
 		exit 1 
 	fi
-	
+
