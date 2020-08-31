@@ -5,6 +5,7 @@
 #--------------------------------------------------------Variaveis --------------------------------------------------
 source ./common-shell.sh
 
+echo "${AZUL}ARGS=$*${NORMAL}"
 FLAG=$#
 VERSION="Linux Post Install to EndUser v0.2.1"
 APT_LIST="/etc/apt/sources.list"
@@ -20,10 +21,10 @@ PROGRAM_INSTALL=""
 LINUX_VERSION=$(cat /etc/issue.net);
 VIRTUALBOX_VERSION='virtualbox-6.0'
 GAMES="supertux extremetuxracer gweled gnome-mahjongg "
-MTP_SPP="libmtp-common mtp-tools libmtp-dev libmtp-runtime libmtp9 python-pymtp   "
+MTP_SPP="libmtp-common mtp-tools libmtp-dev libmtp-runtime libmtp9 "
 SDL_LIBS="libsdl-ttf2.0-dev libsdl-sound1.2 libsdl-gfx1.2-dev libsdl-mixer1.2-dev libsdl-image1.2-dev "
 DEV_TOOLS="g++ kate mesa-utils sublime-text android-tools-fastboot android-tools-adb "
-MULTIMEDIA="vlc kde-l10n-ptbr kolourpaint4 gimp gimp-data-extras krita winff audacity  "
+MULTIMEDIA="vlc language-pack-kde-pt kolourpaint4 gimp gimp-data-extras krita winff audacity  "
 NON_FREE="exfat-utils  exfat-fuse  rar unrar p7zip-full p7zip-rar ttf-mscorefonts-installer "
 SYSTEM=" gparted dnsmasq-base bleachbit  apt-transport-https "
 EDUCATION="geogebra5 "
