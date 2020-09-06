@@ -15,7 +15,7 @@ Distribuições  Oficialmente Suportadas
 <ul>
 	<li>Debian/GNU Linux 10</li>
 	<li>Ubuntu 18.04 LTS</li>
-	<li>Linux Mint 19 <strong>Cinnamon</strong></li>
+	<li>Linux Mint 20 <strong>Cinnamon</strong></li>
 </ul>		
 
 Oque a ferramenta faz?
