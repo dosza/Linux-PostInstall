@@ -19,7 +19,7 @@ ARQUITETURA=$(arch)
 export DEBIAN_FRONTEND="gnome"
 PROGRAM_INSTALL=""
 LINUX_VERSION=$(cat /etc/issue.net);
-VIRTUALBOX_VERSION='virtualbox-6.0'
+VIRTUALBOX_VERSION='virtualbox-6.1'
 GAMES="supertux extremetuxracer gweled gnome-mahjongg "
 MTP_SPP="libmtp-common mtp-tools libmtp-dev libmtp-runtime libmtp9 "
 SDL_LIBS="libsdl-ttf2.0-dev libsdl-sound1.2 libsdl-gfx1.2-dev libsdl-mixer1.2-dev libsdl-image1.2-dev "
@@ -45,7 +45,7 @@ NETFLIX_DESKTOP=(
 #
 installVirtualbox(){
 
-	AptInstall $VIRTUALBOX_VERSION -y 
+	AptInstall $VIRTUALBOX_VERSION 
 	local vbox_ext_str=($(dpkg -l ${VIRTUALBOX_VERSION} | grep virtualbox))
 	local vbox_ext_pack_version=${vbox_ext_str[2]}
 	local vbox_ext_pack_version=${vbox_ext_pack_version%\-*} #expansão remove caractere traço e tudo que vier a frente dele
@@ -88,6 +88,7 @@ install4KVideoDownloader(){
 MakeSourcesListD(){
 	local dist_version=$1
 	local flag_debian=$2
+	local vbox_deb_src="deb [arch=amd64] https://download.virtualbox.org/virtualbox/debian ${dist_version} contrib"
 	local repositorys=(
 		'/etc/apt/sources.list.d/google-chrome.list'
 		'/etc/apt/sources.list.d/sublime-text.list' 
@@ -98,10 +99,9 @@ MakeSourcesListD(){
 	if [ $# = 3 ]; then
 		dist_old_stable_version=$3
 		local vbox_deb_src="deb [arch=amd64] https://download.virtualbox.org/virtualbox/debian ${dist_old_stable_version} contrib"
-		local vbox_deb_src="deb [arch=amd64] https://download.virtualbox.org/virtualbox/debian ${dist_version} contrib"
 	fi
 
-	#echo $vbox_deb_src;read
+	echo $vbox_deb_src;read
 
 	local mirrors=(
 		'deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main' 
@@ -191,7 +191,7 @@ if [ "$UID" = "0" ]; then
 		#Descobre se o a distribuição do linux você está usando 
 		case "$LINUX_VERSION" in
 	        *"Linux Mint"* )
-				MakeSourcesListD "bionic" 1
+				MakeSourcesListD "focal" 1
 				#executa configurações específicas para o linux mint 
 			    LINUX_MODICATIONS=" android-tools-adb openjdk-8-jdk  oxygen-icon-theme-complete  libreoffice-style-breeze libreoffice libreoffice-writer libreoffice-calc libreoffice-impress "
 

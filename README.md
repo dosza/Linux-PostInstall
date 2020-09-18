@@ -71,7 +71,6 @@ Sobre a Configuração de repositórios:
 Esta ferramenta adiciona alguns repositórios para atualizar softwares
 <ul>
 	<li>Debian:Sobrescreve o arquivo /etc/apt/sources.list e adiciona as fontes <em>nonfree</em>,<em>contrib</em> e <em>backports</em></li>
-	<li>Ubuntu/Mint  adiciona  PPA do Libreoffice (para obter a versão mais recente dele)
 </ul>
 
 Repositórios comuns adicionados
