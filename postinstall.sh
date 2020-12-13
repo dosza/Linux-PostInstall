@@ -101,8 +101,6 @@ MakeSourcesListD(){
 		local vbox_deb_src="deb [arch=amd64] https://download.virtualbox.org/virtualbox/debian ${dist_old_stable_version} contrib"
 	fi
 
-	echo $vbox_deb_src;read
-
 	local mirrors=(
 		'deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main' 
 		'deb https://download.sublimetext.com/ apt/stable/' 
