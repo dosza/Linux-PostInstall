@@ -27,6 +27,34 @@ shopt  -s expand_aliases
 alias newPtr='declare -n'
 
 
+CheckPackageDebIsInstalled(){
+	if [ "$1" = "" ]; then 
+		echo "Package cannot be empty"
+		return 2
+	fi
+	exec 2> /dev/null dpkg -s  "$1" | grep 'Status: install'  > /dev/null
+}
+getCurrentDebianFrontend(){
+	tty | grep pts/[0-9] > /dev/null 
+	if [ $? = 0 ]; then
+		CheckPackageDebIsInstalled libgtk3-perl 
+		local is_gnome_apt_frontend_installed=$?
+		
+		CheckPackageDebIsInstalled "debconf-kde-helper"
+		local is_kde_apt_frontend_installed=$?
+
+
+		if [ $is_gnome_apt_frontend_installed = 0 ]; then 
+			export DEBIAN_FRONTEND=gnome
+		else 
+			if [ $is_kde_apt_frontend_installed = 0 ];then
+				export DEBIAN_FRONTEND=kde
+			fi
+		fi
+	fi
+}
+
+
 #cd not a native command, is a systemcall used to exec, read more in exec man 
 changeDirectory(){
 	if [ "$1" != "" ] ; then
@@ -248,9 +276,9 @@ Wget(){
 		exit 1
 	fi
 	local wget_opts="-c --timeout=300"
-	wget $wget_opts $1
+	wget $wget_opts $*
 	if [ $? != 0 ]; then
-		wget $wget_opts $1
+		wget $wget_opts $*
 		if [ $? != 0 ]; then 
 			echo "possible network instability! Try later!"
 			exit 1

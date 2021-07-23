@@ -3,7 +3,12 @@
 # Descrição: Faz a configuração de pós instalação do linux mint (ubuntu ou outro variante da família debian"
 # Versão: 0.2.0
 #--------------------------------------------------------Variaveis --------------------------------------------------
-source ./common-shell.sh
+if [ -e "$PWD/common-shell.sh" ]; then
+	source "$PWD/common-shell.sh"
+elif [ -e "$(dirname $0)/common-shell.sh" ]; then
+	source "$(dirname $0)/common-shell.sh" 
+fi
+
 
 echo "${AZUL}ARGS=$*${NORMAL}"
 FLAG=$#
@@ -16,7 +21,6 @@ FLAG_OP=''
 WEB_BROWSER="google-chrome-stable"
 FLAG_WEB_BROWSER=0
 ARQUITETURA=$(arch)
-export DEBIAN_FRONTEND="gnome"
 PROGRAM_INSTALL=""
 LINUX_VERSION=$(cat /etc/issue.net);
 VIRTUALBOX_VERSION='virtualbox-6.1'
@@ -29,6 +33,8 @@ NON_FREE="exfat-utils  exfat-fuse  rar unrar p7zip-full p7zip-rar ttf-mscorefont
 SYSTEM=" gparted dnsmasq-base bleachbit  apt-transport-https "
 EDUCATION="geogebra5 "
 ARGV=($*)
+
+
 
 NETFLIX_DESKTOP=(
 	"[Desktop Entry]"
@@ -69,20 +75,14 @@ installVirtualbox(){
 
 #Esta função simplifica o download do 4kvideodownlaoder
 install4KVideoDownloader(){
-	Wget 'https://www.4kdownload.com/pt-br/products/product-videodownloader'
-	local _4kvideodownload_url=$(grep 'ubuntu' product-videodownloader  | grep 'https:\/\/dl.'  | sed 's/?source=website"//g' | awk -F'=' '{print $NF }')
+	local product_videodownloader="`Wget -qO-  'https://www.4kdownload.com/pt-br/products/product-videodownloader'`"
+	local _4kvideodownload_url=$(echo "$product_videodownloader" | grep 'ubuntu'   | grep 'https:\/\/dl.'  | sed 's/?source=website"//g' | awk -F'=' '{print $NF }')
 	local _4kvideodownload_deb=$(echo $_4kvideodownload_url | awk -F'/' '{print $NF}') # filtra a string para remover a parte da url. \/ escape para /
-	local del_files=(product-videodownloader "$_4kvideodownload_deb")
-	
-	Wget $_4kvideodownload_url
+	Wget "`echo $_4kvideodownload_url | sed 's|https:|http:|g'`"
 	dpkg -i $_4kvideodownload_deb
 	apt-get -f install -y 
+	rm $_4kvideodownload_deb
 
-	for i in ${!del_files[*]}; do 
-		if [ -e ${del_files[i]} ]; then 
-			rm ${del_files[i]}
-		fi
-	done
 }
 
 MakeSourcesListD(){
@@ -347,7 +347,7 @@ if [ "$UID" = "0" ]; then
 		# fi
 	#done
 
-
+	getCurrentDebianFrontend
 	if [ $# = 0 ]; then
 		PROGRAM_INSTALL=${MTP_SPP}${SDL_LIBS}${MULTIMEDIA}${SYSTEM}
 	else
