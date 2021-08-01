@@ -75,10 +75,10 @@ installVirtualbox(){
 
 #Esta função simplifica o download do 4kvideodownlaoder
 install4KVideoDownloader(){
-	local product_videodownloader="`Wget -qO-  'https://www.4kdownload.com/pt-br/products/product-videodownloader'`"
-	local _4kvideodownload_url=$(echo "$product_videodownloader" | grep 'ubuntu'   | grep 'https:\/\/dl.'  | sed 's/?source=website"//g' | awk -F'=' '{print $NF }')
+	local product_videodownloader='https://www.4kdownload.com/pt-br/products/product-videodownloader'
+	local _4kvideodownload_url=$( wget -qO-  $product_videodownloader | grep amd64.deb | sed '/^\s*ubuntu:/d;s/\s*\"downloadUrl\"\s://g;s/^\s"//g;s/?source=website",$//g')
 	local _4kvideodownload_deb=$(echo $_4kvideodownload_url | awk -F'/' '{print $NF}') # filtra a string para remover a parte da url. \/ escape para /
-	Wget "`echo $_4kvideodownload_url | sed 's|https:|http:|g'`"
+	Wget "`echo $_4kvideodownload_url`" # | sed 's|https:|http:|g'`"
 	dpkg -i $_4kvideodownload_deb
 	apt-get -f install -y 
 	rm $_4kvideodownload_deb
