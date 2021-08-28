@@ -94,6 +94,7 @@ MakeSourcesListD(){
 		'/etc/apt/sources.list.d/sublime-text.list' 
 		'/etc/apt/sources.list.d/geogebra.list'
 		'/etc/apt/sources.list.d/virtualbox.list'
+		'/etc/apt/sources.list.d/teams.list'
 	)
 
 	if [ $# = 3 ]; then
@@ -106,6 +107,7 @@ MakeSourcesListD(){
 		'deb https://download.sublimetext.com/ apt/stable/' 
 		'deb http://www.geogebra.net/linux/ stable main'
 		"$vbox_deb_src"	
+		"deb [arch=amd64] https://packages.microsoft.com/repos/ms-teams stable main"
 	)
 
 	local apt_key_url_repository=(
@@ -114,6 +116,7 @@ MakeSourcesListD(){
 		"https://static.geogebra.org/linux/office@geogebra.org.gpg.key"
 		"https://www.virtualbox.org/download/oracle_vbox_2016.asc"
 		"https://www.virtualbox.org/download/oracle_vbox.asc"
+		"https://packages.microsoft.com/keys/microsoft.asc"
 	)
 
 		for ((i = 0 ; i < ${#repositorys[@]} ; i++))
@@ -188,7 +191,7 @@ if [ "$UID" = "0" ]; then
 
 		#Descobre se o a distribuição do linux você está usando 
 		case "$LINUX_VERSION" in
-	        *"Linux Mint"* )
+	        *"Linux Mint"*  | *"Ubuntu"* | *"Zorin"*)
 				MakeSourcesListD "focal" 1
 				#executa configurações específicas para o linux mint 
 			    LINUX_MODICATIONS=" android-tools-adb openjdk-8-jdk  oxygen-icon-theme-complete  libreoffice-style-breeze libreoffice libreoffice-writer libreoffice-calc libreoffice-impress "
