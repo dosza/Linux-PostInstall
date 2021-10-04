@@ -1,7 +1,7 @@
 #!/bin/bash -x
 # Autor: Daniel Oliveira Souza
 # Descrição: Faz a configuração de pós instalação do linux mint (ubuntu ou outro variante da família debian"
-# Versão: 0.2.0
+# Versão: 0.2.2
 #--------------------------------------------------------Variaveis --------------------------------------------------
 if [ -e "$PWD/common-shell.sh" ]; then
 	source "$PWD/common-shell.sh"
@@ -10,9 +10,10 @@ elif [ -e "$(dirname $0)/common-shell.sh" ]; then
 fi
 
 
+POSTINSTALL_VERSION='0.2.2'
 echo "${AZUL}ARGS=$*${NORMAL}"
 FLAG=$#
-VERSION="Linux Post Install to EndUser v0.2.1"
+VERSION="Linux Post Install to EndUser v${POSTINSTALL_VERSION}"
 APT_LIST="/etc/apt/sources.list"
 APT_MODIFICATIONS=""
 LINUX_MODICATIONS=""
@@ -178,6 +179,8 @@ if [ "$UID" = "0" ]; then
 	
 	# decide se arquitetura 
 	LINUX_VERSION=$(cat /etc/issue.net);
+	LINUX_RELEASE="`cat /etc/issue.net |'s/[a-Z]*[[:blank:]]*//g'`"
+
 	case "$ARQUITETURA" in 
 		"amd64" | "x86_64" )
 			FLAG_WEB_BROWSER=1;
@@ -207,27 +210,27 @@ if [ "$UID" = "0" ]; then
 	        ;;
             *"Deepin"*)
                 case "$LINUX_VERSION" in 
-                    *"2019"*)
-                        	DEBIAN_VERSION="buster"
-						UBUNTU_COMPATIBLE="bionic"
-						DEBIAN_OLD_STABLE_VERSION="stretch"
-						MakeSourcesListD $DEBIAN_VERSION 0
-				APT_MODIFICATIONS="libreoffice libreoffice-style-breeze libreoffice-writer libreoffice-calc libreoffice-impress "
-                        
-				LINUX_MODIFICATIONS="onboard openjdk-8-jdk  gnome-packagekit libreoffice-l10n-pt-br myspell-pt-br epub-utils	 kinit kio kio-extras kded5"
+	                    *"2019"*)
+	                        	DEBIAN_VERSION="buster"
+							UBUNTU_COMPATIBLE="bionic"
+							DEBIAN_OLD_STABLE_VERSION="stretch"
+							MakeSourcesListD $DEBIAN_VERSION 0
+					APT_MODIFICATIONS="libreoffice libreoffice-style-breeze libreoffice-writer libreoffice-calc libreoffice-impress "
+	                        
+					LINUX_MODIFICATIONS="onboard openjdk-8-jdk  gnome-packagekit libreoffice-l10n-pt-br myspell-pt-br epub-utils	 kinit kio kio-extras kded5"
 
-				searchLineinFile "/etc/sysctl.d/99-sysctl.conf" "kernel.dmesg_restrict=0"
-				echo 'kernel.dmesg_restrict=0' | tee -a /etc/sysctl.d/99-sysctl.conf
+					searchLineinFile "/etc/sysctl.d/99-sysctl.conf" "kernel.dmesg_restrict=0"
+					echo 'kernel.dmesg_restrict=0' | tee -a /etc/sysctl.d/99-sysctl.conf
 
-				apt_source_list_extra=(
-						"deb http://security.debian.org/ buster/updates main contrib non-free"
-						"deb-src http://security.debian.org/ buster/updates main contrib non-free"
-						"deb http://security.debian.org/ stretch/updates main contrib non-free"
-						"deb-src http://security.debian.org/ stretch/updates main contrib non-free"
-						"deb http://ftp.br.debian.org/debian/ buster-updates main contrib non-free"
-				)                  	
-                
-                WriterFileln "/etc/apt/sources.list.d/debian.list" apt_source_list_extra
+					apt_source_list_extra=(
+							"deb http://security.debian.org/ buster/updates main contrib non-free"
+							"deb-src http://security.debian.org/ buster/updates main contrib non-free"
+							"deb http://security.debian.org/ stretch/updates main contrib non-free"
+							"deb-src http://security.debian.org/ stretch/updates main contrib non-free"
+							"deb http://ftp.br.debian.org/debian/ buster-updates main contrib non-free"
+					)                  	
+	                
+	                WriterFileln "/etc/apt/sources.list.d/debian.list" apt_source_list_extra
                 	;;
                 esac
 
@@ -238,20 +241,21 @@ if [ "$UID" = "0" ]; then
 
 				DEBIAN_VERSION=""
 				UBUNTU_COMPATIBLE=""
-				case "$LINUX_VERSION" in 
-					*"9."*)
-						echo "Debian/GNU Linux 9 is no longer supported"
-						exit 1;
-					;;
+				case "$LINUX_RELEASE" in 
 					*"10"*)
 						DEBIAN_VERSION="buster"
 						UBUNTU_COMPATIBLE="bionic"
 						DEBIAN_OLD_STABLE_VERSION="stretch"
 						MakeSourcesListD $DEBIAN_VERSION 0
-                          
-				LINUX_MODIFICATIONS="onboard openjdk-11-jre  gnome-packagekit libreoffice-l10n-pt-br myspell-pt-br epub-utils	 kinit kio kio-extras kded5"
+					;;
+					*"11"*)
+						DEBIAN_VERSION="bullseye"
+						UBUNTU_COMPATIBLE="focal"
+						DEBIAN_OLD_STABLE_VERSION="buster"
+						MakeSourcesListD $DEBIAN_VERSION 0
 					;;
 				esac
+				LINUX_MODIFICATIONS="onboard openjdk-11-jre  gnome-packagekit libreoffice-l10n-pt-br myspell-pt-br epub-utils	 kinit kio kio-extras kded5"
 				LIGHTDM_GREETER_CONFIG_PATH="/etc/lightdm/lightdm-gtk-greeter.conf"
 				LIGHTDM_GREETER_CONFIG=(
 					"[greeter]"
@@ -273,48 +277,37 @@ if [ "$UID" = "0" ]; then
 				)
 				SOURCES_LIST_OFICIAL_STR=(
 					"#Fonte de aplicativos apt"  
-					"deb http://ftp.br.debian.org/debian/ $DEBIAN_VERSION main contrib non-free"  
+					"deb http://ftp.br.debian.org/debian/ ${DEBIAN_VERSION} main contrib non-free"  
 					"deb-src http://ftp.br.debian.org/debian/ $DEBIAN_VERSION main contrib non-free"  
 					""  
-					"deb http://security.debian.org/ $DEBIAN_VERSION/updates main contrib non-free"  
-					"deb-src http://security.debian.org/ $DEBIAN_VERSION/updates main contrib non-free"  
+					"deb http://security.debian.org/ ${DEBIAN_VERSION}/updates main contrib non-free"  
+					"deb-src http://security.debian.org/ ${DEBIAN_VERSION}/updates main contrib non-free"  
 					""  
 					"# $DEBIAN_VERSION-updates, previously known as 'volatile'"  
-					"deb http://ftp.br.debian.org/debian/ $DEBIAN_VERSION-updates main contrib non-free"  
-					"deb-src http://ftp.us.debian.org/debian/ $DEBIAN_VERSION-updates main contrib non-free"  
+					"deb http://ftp.br.debian.org/debian/ ${DEBIAN_VERSION}-updates main contrib non-free"  
+					"deb-src http://ftp.us.debian.org/debian/ ${DEBIAN_VERSION}-updates main contrib non-free"  
 					""  
 					"#Adiciona fontes extras ao debian"  
 					"# debian backports"  
-					"deb http://ftp.debian.org/debian $DEBIAN_VERSION-backports main contrib non-free" 
-					"deb-src http://ftp.debian.org/debian $DEBIAN_VERSION-backports main contrib non-free" 
+					"deb http://ftp.debian.org/debian ${DEBIAN_VERSION}-backports main contrib non-free" 
+					"deb-src http://ftp.debian.org/debian ${DEBIAN_VERSION}-backports main contrib non-free" 
 					"#Adiciona suporte ao wine"
-					"deb https://dl.winehq.org/wine-builds/debian/ $DEBIAN_VERSION main"
+					"deb https://dl.winehq.org/wine-builds/debian/ ${DEBIAN_VERSION} main"
 				)
 
-				for((i=0;i<${#SOURCES_LIST_OFICIAL_STR[*]};i++))
-				do
-					if [ $i = 0 ]; then 
-						echo "reescrevendo debian sources.list"
-						echo "${SOURCES_LIST_OFICIAL_STR[i]}" > /etc/apt/sources.list
-					else
-						echo "${SOURCES_LIST_OFICIAL_STR[i]}" >> /etc/apt/sources.list
-					fi
-				done
+				echo "Reescrevendo /etc/apt/sources.list ..."
+				WriterFileln /etc/apt/sources.list SOURCES_LIST_OFICIAL_STR
 
-
-				if [ -e /etc/apt/sources.list.d/webupd8team-java.list ]; then
+				[ -e /etc/apt/sources.list.d/webupd8team-java.list ] &&
 					rm  /etc/apt/sources.list.d/webupd8team-java.list
-				fi
+			
 				#procura no arquivo a linha de configuração
 				searchLineinFile $LIGHTDM_GREETER_CONFIG_PATH ${LIGHTDM_GREETER_CONFIG[12]}
 				
 				#verifica-se o arquivo não está configurado
 				if [ $? = 0 ]; then
 					#escreva a configuração no arquivo!
-					for ((i=0;i<${#LIGHTDM_GREETER_CONFIG[*]};i++))
-					do
-						echo "${LIGHTDM_GREETER_CONFIG[i]}" >> $LIGHTDM_GREETER_CONFIG_PATH
-					done
+					AppendFileln $LIGHTDM_GREETER_CONFIG_PATH LIGHTDM_GREETER_CONFIG
 				else
 					echo "lightdm está configurado!"
 				fi
@@ -325,6 +318,9 @@ if [ "$UID" = "0" ]; then
 				LINUX_MODIFICATIONS="onboard openjdk-11-jre  gnome-packagekit libreoffice-l10n-pt-br myspell-pt-br epub-utils	 kinit kio kio-extras kded5"
 				APT_MODIFICATIONS="-t ${DEBIAN_VERSION}-backports   "
 				APT_MODIFICATIONS=$APT_MODIFICATIONS"libreoffice libreoffice-style-breeze libreoffice-writer libreoffice-calc libreoffice-impress"
+
+				searchLineinFile "/etc/sysctl.d/99-sysctl.conf" "kernel.dmesg_restrict=0"
+				echo 'kernel.dmesg_restrict=0' | tee -a /etc/sysctl.d/99-sysctl.conf
 
 				;;
 				*"Ubuntu"*)
