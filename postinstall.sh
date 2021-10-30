@@ -1,7 +1,7 @@
 #!/bin/bash -x
 # Autor: Daniel Oliveira Souza
 # Descrição: Faz a configuração de pós instalação do linux mint (ubuntu ou outro variante da família debian"
-# Versão: 0.2.2
+# Versão: 0.2.3
 #--------------------------------------------------------Variaveis --------------------------------------------------
 if [ -e "$PWD/common-shell.sh" ]; then
 	source "$PWD/common-shell.sh"
@@ -10,7 +10,7 @@ elif [ -e "$(dirname $0)/common-shell.sh" ]; then
 fi
 
 
-POSTINSTALL_VERSION='0.2.2'
+POSTINSTALL_VERSION='0.2.3'
 echo "${AZUL}ARGS=$*${NORMAL}"
 FLAG=$#
 VERSION="Linux Post Install to EndUser v${POSTINSTALL_VERSION}"
@@ -79,10 +79,14 @@ install4KVideoDownloader(){
 	local product_videodownloader='https://www.4kdownload.com/pt-br/products/product-videodownloader'
 	local _4kvideodownload_url=$( wget -qO-  $product_videodownloader | grep amd64.deb | sed '/^\s*ubuntu:/d;s/\s*\"downloadUrl\"\s://g;s/^\s"//g;s/?source=website",$//g')
 	local _4kvideodownload_deb=$(echo $_4kvideodownload_url | awk -F'/' '{print $NF}') # filtra a string para remover a parte da url. \/ escape para /
-	Wget "`echo $_4kvideodownload_url`" # | sed 's|https:|http:|g'`"
-	dpkg -i $_4kvideodownload_deb
-	apt-get -f install -y 
-	rm $_4kvideodownload_deb
+	local current_version_4k_videodownloader="$(getDebPackVersion 4kvideodownloader)"
+	if [ $? != 0 ] || [ $? = 0 ] && ( ! echo $_4kvideodownload_deb | grep "$current_version_4k_videodownloader") ; then 
+		echo "$_4kvideodownload_deb" | grep "$current_version_4k_videodownloader"
+		Wget "`echo $_4kvideodownload_url`" # | sed 's|https:|http:|g'`"
+		dpkg -i $_4kvideodownload_deb
+		apt-get -f install -y 
+		rm $_4kvideodownload_deb
+	fi
 
 }
 

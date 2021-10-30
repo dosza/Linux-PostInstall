@@ -2,8 +2,8 @@
 #-------------------------------------------------------------------------------------------------#
 #Universidade federal de Mato Grosso (mater-alma)
 #Course: Science Computer
-#version: 0.1.0	
-#Date: 19/06/2020
+#version: 0.1.0.1	
+#Date: 29/11/2021
 #Description: Thi script provides common shell functions
 #-------------------------------------------------------------------------------------------------#
 
@@ -331,16 +331,14 @@ AptInstall(){
 }
 
 #Retorna verdadeiro se o pacote $1 está instalado
-isDebPackInstalled(){
-	if [ "$1" = "" ]; then
-		echo "missing package name";
-		return 0;
-	fi
-	exec 2> /dev/null dpkg -s "$1" | grep 'Status: install' > /dev/null #exec 2 redireciona a saída do stderror para /dev/null
-	
-	if [ $?  = 0 ]; then
-		return 1
+
+
+getDebPackVersion(){
+	CheckPackageDebIsInstalled "$1"
+	if [ $? = 0 ]; then
+		exec 2> /dev/null dpkg -s "$1" | grep '^Version' | sed 's/Version:\s*//g' 
 	else
-		return 0;
+		echo ""
+		return 1;
 	fi
 }
