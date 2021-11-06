@@ -306,6 +306,30 @@ IsFileBusy(){
 	done
 }
 
+AptDistUpgrade(){
+	local apt_opts=(-y --allow-unauthenticated)
+	local apt_opts_err=(--fix-missing)
+
+	IsFileBusy apt ${APT_LOCKS}
+	apt-get update
+	IsFileBusy apt ${APT_LOCKS}
+	apt-get dist-upgrade -y ${apt_opts[*]}
+	
+	if [ $? != 0 ]; then
+		IsFileBusy apt ${APT_LOCKS}
+		apt-get dist-upgrade -y ${apt_opts[*]} ${apt_opts_err}
+		
+		if [ $? != 0 ]; then 
+			echo "possible network instability! Try later!"
+			exit 1
+		fi
+	fi
+}
+
+AptRemove(){
+	apt-get remove $*
+	apt-get autoremove -y;
+}
 #Essa instala um ou mais pacotes from apt 
 AptInstall(){
 	
@@ -318,8 +342,10 @@ AptInstall(){
 	fi
 	IsFileBusy apt ${APT_LOCKS[*]}
 	apt-get update
+	IsFileBusy apt ${APT_LOCKS}
 	apt-get install $* ${apt_opts[*]}
 	if [ "$?" != "0" ]; then
+		IsFileBusy apt ${APT_LOCKS}
 		apt-get install $* ${apt_opts[*]} ${apt_opts_err[*]}
 		if [ $? != 0 ]; then 
 			echo "possible network instability! Try later!"

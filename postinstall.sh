@@ -16,9 +16,7 @@ FLAG=$#
 VERSION="Linux Post Install to EndUser v${POSTINSTALL_VERSION}"
 APT_LIST="/etc/apt/sources.list"
 APT_MODIFICATIONS=""
-LINUX_MODICATIONS=""
-FLAG_APT='0'
-FLAG_OP=''
+LINUX_MODIFICATIONS=""
 WEB_BROWSER="google-chrome-stable"
 FLAG_WEB_BROWSER=0
 ARQUITETURA=$(arch)
@@ -34,8 +32,7 @@ NON_FREE="exfat-utils  exfat-fuse  rar unrar p7zip-full p7zip-rar ttf-mscorefont
 SYSTEM=" gparted dnsmasq-base bleachbit  apt-transport-https "
 EDUCATION="geogebra5 "
 ARGV=($*)
-
-
+EXPECTED_STATUS=""
 
 NETFLIX_DESKTOP=(
 	"[Desktop Entry]"
@@ -60,6 +57,7 @@ installVirtualbox(){
 	Wget "${vbox_ext_pack_url}"
 
 	usuarios=($( grep 100 /etc/group | cut -d: -f1))
+	unset usuarios[0];
 	for i in ${!usuarios[*]}; do
 		adduser ${usuarios[i]} vboxusers #adiciona o usuário ao grupo vboxusers
 	done
@@ -132,8 +130,7 @@ MakeSourcesListD(){
 		done
 
 		echo "Adicionando apt keys ..."
-		for((i=0;i<${#apt_key_url_repository[@]};i++))
-		do
+		for((i=0;i<${#apt_key_url_repository[@]};i++)); do
 			wget -qO - "${apt_key_url_repository[i]}" | apt-key add -
 			if [ $? != 0 ] ; then 
 				wget -qO - "${apt_key_url_repository[i]}" | apt-key add -
@@ -141,41 +138,20 @@ MakeSourcesListD(){
 		done
 
 }
+
 basicInstall(){
 	echo "sua string de instalação é:" $PROGRAM_INSTALL
 	echo "Este script irá configurar seu computador para o uso"
 	echo $VERSION	
-	IsFileBusy apt ${APT_LOCKS[*]}
-	#lista os programas e suas versões
-	apt-get update
-	#baixa e instala as atualizações
-	apt-get dist-upgrade  -y --allow-unauthenticated 
-	FLAG_OP=$FLAG_OP$?
-	#instal os programas listados pela variavel PROGRAM_INSTALL
-	apt-get install $PROGRAM_INSTALL -y --allow-unauthenticated 
-	FLAG_OP=$FLAG_OP$?
-	apt-get install $LINUX_MODIFICATIONS -y --allow-unauthenticated 
-	FLAG_OP=$FLAG_OP$?
-	apt-get install $APT_MODIFICATIONS -y --allow-unauthenticated 
-	FLAG_OP=$FLAG_OP$?
-
-
-	apt-get install $WEB_BROWSER -y --allow-unauthenticated 
-	FLAG_OP=$FLAG_OP$?
-	#instala as dependencias 
-	apt-get install -f -y --allow-unauthenticated 
-	FLAG_OP=$FLAG_OP$?
-	#remove programas que eu acho desnecessários, listados pela variavel $programa_remove  
-	apt-get remove $program_remove -y
-	FLAG_OP=$FLAG_OP$?
-	#remove dependencias dos programas removidos
-	apt-get autoremove -y --allow-unauthenticated 
-	#limpa o cache do apt se todas operações de instalação foram concluidas com sucesso
-	if [ "$FLAG_OP" = "0000000" ]; then
-		echo 'Limpando o cache do APT...'
-		apt-get clean 
-	fi
+	AptDistUpgrade
+	AptInstall $PROGRAM_INSTALL; 
+	AptInstall $LINUX_MODIFICATIONS;
+	
+	[ "$APT_MODIFICATIONS" != "" ] && AptInstall $APT_MODIFICATIONS;
+	AptInstall $WEB_BROWSER;
+	AptRemove $program_remove
 	install4KVideoDownloader
+	AptInstall -f
 }
 
 #verifica se o usuário tem poderes administrativos	
@@ -183,7 +159,7 @@ if [ "$UID" = "0" ]; then
 	
 	# decide se arquitetura 
 	LINUX_VERSION=$(cat /etc/issue.net);
-	LINUX_RELEASE="`cat /etc/issue.net |'s/[a-Z]*[[:blank:]]*//g'`"
+	LINUX_RELEASE="`cat /etc/issue.net | sed 's/[a-Z]*[[:blank:]]*//g'`"
 
 	case "$ARQUITETURA" in 
 		"amd64" | "x86_64" )
@@ -201,13 +177,13 @@ if [ "$UID" = "0" ]; then
 	        *"Linux Mint"*  | *"Ubuntu"* | *"Zorin"*)
 				MakeSourcesListD "focal" 1
 				#executa configurações específicas para o linux mint 
-			    LINUX_MODICATIONS=" android-tools-adb openjdk-8-jdk  oxygen-icon-theme-complete  libreoffice-style-breeze libreoffice libreoffice-writer libreoffice-calc libreoffice-impress "
+			    LINUX_MODIFICATIONS=" android-tools-adb openjdk-8-jre  oxygen-icon-theme libreoffice-style-breeze libreoffice libreoffice-writer libreoffice-calc libreoffice-impress "
 
 			;;
 	        *"LMDE"*)
 				
 				#excuta configurações específicas para LInux Mint Debian 
-	            LINUX_MODICATIONS=" android-tools-adb oxygen-icon-theme-complete "
+	            LINUX_MODIFICATIONS=" android-tools-adb oxygen-icon-theme-complete "
 	            APT_MODIFICATIONS=" -t jessie-backports libreoffice-style-breeze libreoffice libreoffice-writer libreoffice-calc libreoffice-impress openjdk-8-jre "
 
 			    MakeSourcesListD "stretch" 0
