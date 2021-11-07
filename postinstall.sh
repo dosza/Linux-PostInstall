@@ -12,7 +12,7 @@ fi
 
 POSTINSTALL_VERSION='0.2.3'
 FLAG=$#
-VERSION="Linux Post Install to EndUser v${POSTINSTALL_VERSION}"
+WELCOME_POSTINSTALL_MSG="Linux Post Install to EndUser v${POSTINSTALL_VERSION}"
 APT_LIST="/etc/apt/sources.list"
 APT_MODIFICATIONS=""
 LINUX_MODIFICATIONS=""
@@ -31,6 +31,7 @@ NON_FREE="exfat-utils  exfat-fuse  rar unrar p7zip-full p7zip-rar ttf-mscorefont
 SYSTEM=" gparted dnsmasq-base bleachbit  apt-transport-https "
 EDUCATION="geogebra5 "
 ARGV=($*)
+UNSUPPORTED_JAVA_PPA=/etc/apt/sources.list.d/webupd8team-java.list
 #
 installVirtualbox(){
 
@@ -43,11 +44,11 @@ installVirtualbox(){
 
 	usuarios=($( grep 100 /etc/group | cut -d: -f1))
 	unset usuarios[0];
-	for i in ${!usuarios[*]}; do
-		adduser ${usuarios[i]} vboxusers #adiciona o usuário ao grupo vboxusers
-	done
 	
+	arrayMap usuarios usuario '
+		adduser $usuario vboxusers'
 	
+
 	if [ -e "Oracle_VM_VirtualBox_Extension_Pack-${vbox_ext_pack_version}.vbox-extpack" ]; then
 		echo "y" | VBoxManage extpack install --replace "Oracle_VM_VirtualBox_Extension_Pack-${vbox_ext_pack_version}.vbox-extpack"
 		rm "Oracle_VM_VirtualBox_Extension_Pack-${vbox_ext_pack_version}.vbox-extpack"
@@ -76,22 +77,20 @@ install4KVideoDownloader(){
 MakeSourcesListD(){
 	local dist_version=$1
 	local flag_debian=$2
-	local vbox_deb_src="deb [arch=amd64] https://download.virtualbox.org/virtualbox/debian ${dist_version} contrib"
+	
 	local repositorys=(
 		'/etc/apt/sources.list.d/google-chrome.list'
 		'/etc/apt/sources.list.d/sublime-text.list' 
 		'/etc/apt/sources.list.d/geogebra.list'
 		'/etc/apt/sources.list.d/virtualbox.list'
-		'/etc/apt/sources.list.d/teams.list'
-	)
+		'/etc/apt/sources.list.d/teams.list')
 
 	local mirrors=(
 		'deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main' 
 		'deb https://download.sublimetext.com/ apt/stable/' 
 		'deb http://www.geogebra.net/linux/ stable main'
-		"$vbox_deb_src"	
-		"deb [arch=amd64] https://packages.microsoft.com/repos/ms-teams stable main"
-	)
+		"deb [arch=amd64] https://download.virtualbox.org/virtualbox/debian ${dist_version} contrib"	
+		"deb [arch=amd64] https://packages.microsoft.com/repos/ms-teams stable main")
 
 	local apt_key_url_repository=(
 		"https://download.sublimetext.com/sublimehq-pub.gpg"
@@ -99,8 +98,8 @@ MakeSourcesListD(){
 		"https://static.geogebra.org/linux/office@geogebra.org.gpg.key"
 		"https://www.virtualbox.org/download/oracle_vbox_2016.asc"
 		"https://www.virtualbox.org/download/oracle_vbox.asc"
-		"https://packages.microsoft.com/keys/microsoft.asc"
-	)
+		"https://packages.microsoft.com/keys/microsoft.asc")
+
 	ConfigureSourcesList apt_key_url_repository mirrors repositorys
 }
 
@@ -110,13 +109,48 @@ basicInstall(){
 	AptDistUpgrade
 	AptInstall $COMMON_SHELL_MIN_DEPS $PROGRAM_INSTALL; 
 	AptInstall $LINUX_MODIFICATIONS;
-	
-	[ "$APT_MODIFICATIONS" != "" ] && 
-		AptInstall $APT_MODIFICATIONS;
+	[ "$APT_MODIFICATIONS" != "" ] && AptInstall $APT_MODIFICATIONS;
 	AptInstall $WEB_BROWSER;
 	AptRemove $program_remove
 	install4KVideoDownloader
 	AptInstall -f
+}
+
+DebianExtraActions(){
+	LIGHTDM_GREETER_CONFIG_PATH="/etc/lightdm/lightdm-gtk-greeter.conf"
+	LIGHTDM_GREETER_CONFIG=(
+		"[greeter]"
+		"#background="
+		"#user-background="
+		"#theme-name="
+		"#icon-theme-name="
+		"#font-name="
+		"#xft-antialias="
+		"#xft-dpi="
+		"#xft-hintstyle="
+		"#xft-rgba="
+		"#indicators="
+		"#clock-format="
+		"keyboard=onboard"
+		"#reader="
+		"#position="
+		"#screensaver-timeout="
+	)
+
+	searchLineinFile $LIGHTDM_GREETER_CONFIG_PATH ${LIGHTDM_GREETER_CONFIG[12]}
+	
+	#verifica-se o arquivo não está configurado
+	if [ $? = 0 ]; then 
+		AppendFileln $LIGHTDM_GREETER_CONFIG_PATH LIGHTDM_GREETER_CONFIG
+	fi
+
+	searchLineinFile "/etc/sysctl.d/99-sysctl.conf" "kernel.dmesg_restrict=0"
+	
+	if [ $? = 0 ]; then 
+		echo 'kernel.dmesg_restrict=0' | tee -a /etc/sysctl.d/99-sysctl.conf
+	fi
+
+	[ -e $UNSUPPORTED_JAVA_PPA ] && rm $UNSUPPORTED_JAVA_PPA
 }
 
 #verifica se o usuário tem poderes administrativos	
@@ -148,41 +182,23 @@ if [ "$UID" = "0" ]; then
 			*"Debian"* )
 				#COnfigurações específicas para debian
 				#gerando o sources.list 
-
-				DEBIAN_VERSION=""
-				UBUNTU_COMPATIBLE=""
 				case "$LINUX_RELEASE" in 
 					*"10"*)
 						DEBIAN_VERSION="buster"
-						UBUNTU_COMPATIBLE="bionic"
 						MakeSourcesListD $DEBIAN_VERSION 0
 					;;
 					*"11"*)
 						DEBIAN_VERSION="bullseye"
-						UBUNTU_COMPATIBLE="focal"
 						MakeSourcesListD $DEBIAN_VERSION 0
 					;;
 				esac
+				
+				LINUX_MODIFICATIONS="onboard openjdk-11-jre  gnome-packagekit libreoffice-l10n-pt-br myspell-pt-br epub-utils kinit kio kio-extras kded5"
+				APT_EXTRA_KEYS=(https://dl.winehq.org/wine-builds/winehq.key)
 				LINUX_MODIFICATIONS="onboard openjdk-11-jre  gnome-packagekit libreoffice-l10n-pt-br myspell-pt-br epub-utils	 kinit kio kio-extras kded5"
-				LIGHTDM_GREETER_CONFIG_PATH="/etc/lightdm/lightdm-gtk-greeter.conf"
-				LIGHTDM_GREETER_CONFIG=(
-					"[greeter]"
-					"#background="
-					"#user-background="
-					"#theme-name="
-					"#icon-theme-name="
-					"#font-name="
-					"#xft-antialias="
-					"#xft-dpi="
-					"#xft-hintstyle="
-					"#xft-rgba="
-					"#indicators="
-					"#clock-format="
-					"keyboard=onboard"
-					"#reader="
-					"#position="
-					"#screensaver-timeout="
-				)
+				APT_MODIFICATIONS="-t ${DEBIAN_VERSION}-backports "
+				APT_MODIFICATIONS+="libreoffice libreoffice-style-breeze libreoffice-writer libreoffice-calc libreoffice-impress"
+
 				SOURCES_LIST_OFICIAL_STR=(
 					"#Fonte de aplicativos apt"  
 					"deb http://ftp.br.debian.org/debian/ ${DEBIAN_VERSION} main contrib non-free"  
@@ -202,66 +218,19 @@ if [ "$UID" = "0" ]; then
 					"#Adiciona suporte ao wine"
 					"deb https://dl.winehq.org/wine-builds/debian/ ${DEBIAN_VERSION} main"
 				)
-
-				echo "Reescrevendo /etc/apt/sources.list ..."
-				WriterFileln /etc/apt/sources.list SOURCES_LIST_OFICIAL_STR
-
-				[ -e /etc/apt/sources.list.d/webupd8team-java.list ] &&
-					rm  /etc/apt/sources.list.d/webupd8team-java.list
-			
-				#procura no arquivo a linha de configuração
-				searchLineinFile $LIGHTDM_GREETER_CONFIG_PATH ${LIGHTDM_GREETER_CONFIG[12]}
 				
-				#verifica-se o arquivo não está configurado
-				if [ $? = 0 ]; then
-					#escreva a configuração no arquivo!
-					AppendFileln $LIGHTDM_GREETER_CONFIG_PATH LIGHTDM_GREETER_CONFIG
-				else
-					echo "lightdm está configurado!"
-				fi
-
-				apt-key adv --keyserver keyserver.ubuntu.com:80 --recv-keys EEA14886 
-				wget -q -O - https://dl.winehq.org/wine-builds/winehq.key  | apt-key add -
-
-				LINUX_MODIFICATIONS="onboard openjdk-11-jre  gnome-packagekit libreoffice-l10n-pt-br myspell-pt-br epub-utils	 kinit kio kio-extras kded5"
-				APT_MODIFICATIONS="-t ${DEBIAN_VERSION}-backports   "
-				APT_MODIFICATIONS=$APT_MODIFICATIONS"libreoffice libreoffice-style-breeze libreoffice-writer libreoffice-calc libreoffice-impress"
-
-				searchLineinFile "/etc/sysctl.d/99-sysctl.conf" "kernel.dmesg_restrict=0"
-				echo 'kernel.dmesg_restrict=0' | tee -a /etc/sysctl.d/99-sysctl.conf
-
-				;;
-				*"Ubuntu"*)
-					LINUX_MODIFICATIONS=" adb openjdk-8-jre  libreoffice-style-breeze libreoffice libreoffice-writer libreoffice-calc libreoffice-impress "
-
-	        ;;
+				getAptKeys APT_EXTRA_KEYS
+				WriterFileln $APT_LIST SOURCES_LIST_OFICIAL_STR
+				DebianExtraActions
+			;;
 		esac
-
-
-
-
-	#Altera o proprietário todos os arquivos e diretório dos usuários
-	
-	# Armazaena uma lista de usuarios cadastrados no computador 
-	#usuarios=($(cat /etc/group | grep 100 | cut -d: -f1))
-	#for((i=1 ;i<${#usuarios[@]} ;i++))
-	#do
-		#usuario_i=${usuarios[i]}
-		# Se existe o diretório do 
-		# if [ -e /home/$usuario_i ]
-		# 	then
-		# 	chown $usuario_i:$usuario_i  -R /home/$usuario_i
-		# fi
-	#done
 
 	getCurrentDebianFrontend
 	if [ $# = 0 ]; then
 		PROGRAM_INSTALL=${MTP_SPP}${SDL_LIBS}${MULTIMEDIA}${SYSTEM}
 	else
 		PROGRAM_INSTALL=$PROGRAM_INSTALL$NON_FREE$SYSTEM
-		for((i=0;i<$#;i++))
-		do
-			echo ${ARGV[i]}
+		for((i=0;i<$#;i++)); do
 			case  "${ARGV[i]}" in
 				"--i-games")
 					PROGRAM_INSTALL=$PROGRAM_INSTALL$GAMES
