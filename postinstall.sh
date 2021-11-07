@@ -11,7 +11,6 @@ fi
 
 
 POSTINSTALL_VERSION='0.2.3'
-echo "${AZUL}ARGS=$*${NORMAL}"
 FLAG=$#
 VERSION="Linux Post Install to EndUser v${POSTINSTALL_VERSION}"
 APT_LIST="/etc/apt/sources.list"
@@ -32,20 +31,6 @@ NON_FREE="exfat-utils  exfat-fuse  rar unrar p7zip-full p7zip-rar ttf-mscorefont
 SYSTEM=" gparted dnsmasq-base bleachbit  apt-transport-https "
 EDUCATION="geogebra5 "
 ARGV=($*)
-EXPECTED_STATUS=""
-
-NETFLIX_DESKTOP=(
-	"[Desktop Entry]"
-	"Name=Netflix"
-	"Exec=/opt/google/chrome/chrome --app=\"https://netflix.com\""
-	"Comment=Asista a Netflix!"
-	"Icon=netflix-desktop"
-	"Terminal=false"
-	"Type=Application"
-	"Categories=Network;WebBrowser;"
-	"StartupWMClass=netflix.com"
-)
-
 #
 installVirtualbox(){
 
@@ -100,11 +85,6 @@ MakeSourcesListD(){
 		'/etc/apt/sources.list.d/teams.list'
 	)
 
-	if [ $# = 3 ]; then
-		dist_old_stable_version=$3
-		local vbox_deb_src="deb [arch=amd64] https://download.virtualbox.org/virtualbox/debian ${dist_old_stable_version} contrib"
-	fi
-
 	local mirrors=(
 		'deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main' 
 		'deb https://download.sublimetext.com/ apt/stable/' 
@@ -121,33 +101,18 @@ MakeSourcesListD(){
 		"https://www.virtualbox.org/download/oracle_vbox.asc"
 		"https://packages.microsoft.com/keys/microsoft.asc"
 	)
-
-		for ((i = 0 ; i < ${#repositorys[@]} ; i++))
-		do
-			echo "### THIS FILE IS AUTOMATICALLY CONFIGURED" > ${repositorys[i]}
-			echo "###ou may comment out this entry, but any other modifications may be lost." >> ${repositorys[i]}
-			echo ${mirrors[i]} >> ${repositorys[i]}
-		done
-
-		echo "Adicionando apt keys ..."
-		for((i=0;i<${#apt_key_url_repository[@]};i++)); do
-			wget -qO - "${apt_key_url_repository[i]}" | apt-key add -
-			if [ $? != 0 ] ; then 
-				wget -qO - "${apt_key_url_repository[i]}" | apt-key add -
-			fi
-		done
-
+	ConfigureSourcesList apt_key_url_repository mirrors repositorys
 }
 
 basicInstall(){
 	echo "sua string de instalação é:" $PROGRAM_INSTALL
 	echo "Este script irá configurar seu computador para o uso"
-	echo $VERSION	
 	AptDistUpgrade
 	AptInstall $PROGRAM_INSTALL; 
 	AptInstall $LINUX_MODIFICATIONS;
 	
-	[ "$APT_MODIFICATIONS" != "" ] && AptInstall $APT_MODIFICATIONS;
+	[ "$APT_MODIFICATIONS" != "" ] && 
+		AptInstall $APT_MODIFICATIONS;
 	AptInstall $WEB_BROWSER;
 	AptRemove $program_remove
 	install4KVideoDownloader
@@ -178,43 +143,8 @@ if [ "$UID" = "0" ]; then
 				MakeSourcesListD "focal" 1
 				#executa configurações específicas para o linux mint 
 			    LINUX_MODIFICATIONS=" android-tools-adb openjdk-8-jre  oxygen-icon-theme libreoffice-style-breeze libreoffice libreoffice-writer libreoffice-calc libreoffice-impress "
-
-			;;
-	        *"LMDE"*)
-				
-				#excuta configurações específicas para LInux Mint Debian 
-	            LINUX_MODIFICATIONS=" android-tools-adb oxygen-icon-theme-complete "
-	            APT_MODIFICATIONS=" -t jessie-backports libreoffice-style-breeze libreoffice libreoffice-writer libreoffice-calc libreoffice-impress openjdk-8-jre "
-
-			    MakeSourcesListD "stretch" 0
-	        ;;
-            *"Deepin"*)
-                case "$LINUX_VERSION" in 
-	                    *"2019"*)
-	                        	DEBIAN_VERSION="buster"
-							UBUNTU_COMPATIBLE="bionic"
-							DEBIAN_OLD_STABLE_VERSION="stretch"
-							MakeSourcesListD $DEBIAN_VERSION 0
-					APT_MODIFICATIONS="libreoffice libreoffice-style-breeze libreoffice-writer libreoffice-calc libreoffice-impress "
-	                        
-					LINUX_MODIFICATIONS="onboard openjdk-8-jdk  gnome-packagekit libreoffice-l10n-pt-br myspell-pt-br epub-utils	 kinit kio kio-extras kded5"
-
-					searchLineinFile "/etc/sysctl.d/99-sysctl.conf" "kernel.dmesg_restrict=0"
-					echo 'kernel.dmesg_restrict=0' | tee -a /etc/sysctl.d/99-sysctl.conf
-
-					apt_source_list_extra=(
-							"deb http://security.debian.org/ buster/updates main contrib non-free"
-							"deb-src http://security.debian.org/ buster/updates main contrib non-free"
-							"deb http://security.debian.org/ stretch/updates main contrib non-free"
-							"deb-src http://security.debian.org/ stretch/updates main contrib non-free"
-							"deb http://ftp.br.debian.org/debian/ buster-updates main contrib non-free"
-					)                  	
-	                
-	                WriterFileln "/etc/apt/sources.list.d/debian.list" apt_source_list_extra
-                	;;
-                esac
-
             ;;
+
 			*"Debian"* )
 				#COnfigurações específicas para debian
 				#gerando o sources.list 
@@ -225,13 +155,11 @@ if [ "$UID" = "0" ]; then
 					*"10"*)
 						DEBIAN_VERSION="buster"
 						UBUNTU_COMPATIBLE="bionic"
-						DEBIAN_OLD_STABLE_VERSION="stretch"
 						MakeSourcesListD $DEBIAN_VERSION 0
 					;;
 					*"11"*)
 						DEBIAN_VERSION="bullseye"
 						UBUNTU_COMPATIBLE="focal"
-						DEBIAN_OLD_STABLE_VERSION="buster"
 						MakeSourcesListD $DEBIAN_VERSION 0
 					;;
 				esac
