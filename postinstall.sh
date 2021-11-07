@@ -108,7 +108,7 @@ basicInstall(){
 	echo "sua string de instalação é:" $PROGRAM_INSTALL
 	echo "Este script irá configurar seu computador para o uso"
 	AptDistUpgrade
-	AptInstall $PROGRAM_INSTALL; 
+	AptInstall $COMMON_SHELL_MIN_DEPS $PROGRAM_INSTALL; 
 	AptInstall $LINUX_MODIFICATIONS;
 	
 	[ "$APT_MODIFICATIONS" != "" ] && 

@@ -30,6 +30,8 @@ APT_LOCKS=(
 	"/var/cache/apt/archives/lock"
 	"/var/lib/dpkg/lock-frontend"
 )
+
+COMMON_SHELL_MIN_DEPS="wget psmisc"
 shopt  -s expand_aliases
 alias newPtr='declare -n'
 alias isFalse='if [ $? != 0 ]; then return 1; fi'
@@ -701,9 +703,15 @@ writeAptMirrors(){
 	newPtr ref_str_mirrors=$1
 	newPtr ref_file_mirros=$2
 
+	echo "Writing mirrors ..."
 	arrayMap ref_str_mirrors mirror index '{
 		local file_mirror=${ref_file_mirros[$index]}
-		WriterFile $mirror $file_mirror
+		local mirror_str=(
+			"### THIS FILE IS AUTOMATICALLY CONFIGURED"
+			"###ou may comment out this entry, but any other modifications may be lost." 
+			"$mirror"
+		)
+		WriterFile  $file_mirror mirror_str
 	}'
 }
 
@@ -714,17 +722,17 @@ ConfigureSourcesListByScript(){
 	isFalse
 
 	newPtr ref_scripts_link=$1
-	arrayMap ref_scripts_link script 'Wget -O- -q "$script" | bash - '
+	arrayMap ref_scripts_link script 'Wget -qO- "$script" | bash - '
 	
 }
-
 
 getAptKeys(){
 	if [ $# -lt 1 ] || [ "$1" = "" ] ; then return 1; fi
 
 	isVariableArray $1
 	newPtr ref_apt_keys=$1
-	arrayMap ref_apt_keys key 'Wget  -O- -q  "$key" | apt-key add - '
+	echo "Getting apt Keys ..."
+	arrayMap ref_apt_keys key 'Wget -qO- "$key" | apt-key add - '
 	
 }
 
