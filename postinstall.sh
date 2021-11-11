@@ -1,7 +1,7 @@
 #!/bin/bash -x
 # Autor: Daniel Oliveira Souza
 # Descrição: Faz a configuração de pós instalação do linux mint (ubuntu ou outro variante da família debian"
-# Versão: 0.2.3
+# Versão: 0.2.4
 #--------------------------------------------------------Variaveis --------------------------------------------------
 if [ -e "$PWD/common-shell.sh" ]; then
 	source "$PWD/common-shell.sh"
@@ -10,7 +10,7 @@ elif [ -e "$(dirname $0)/common-shell.sh" ]; then
 fi
 
 
-POSTINSTALL_VERSION='0.2.3'
+POSTINSTALL_VERSION='0.2.4'
 FLAG=$#
 WELCOME_POSTINSTALL_MSG="Linux Post Install to EndUser v${POSTINSTALL_VERSION}"
 APT_LIST="/etc/apt/sources.list"
@@ -58,14 +58,28 @@ installVirtualbox(){
 	fi
 }
 
-#Esta função simplifica o download do 4kvideodownlaoder
+
+#função que retorna o status de instalação do 4kvideodownloader
+get4kVideoDownloaderStatus(){
+	local _4kvideo_status=0
+	if [ "$current_version_4k_videodownloader" = "" ]; then 
+		_4kvideo_status=1
+	else
+		( ! echo $_4kvideodownload_deb | grep $current_version_4k_videodownloader ) && _4kvideo_status=1
+	fi
+
+	return $_4kvideo_status
+
+}
+#função para baixar e instalar o 4kvideodownloader
 install4KVideoDownloader(){
 	local product_videodownloader='https://www.4kdownload.com/pt-br/products/product-videodownloader'
 	local _4kvideodownload_url=$( wget -qO-  $product_videodownloader | grep amd64.deb | sed '/^\s*ubuntu:/d;s/\s*\"downloadUrl\"\s://g;s/^\s"//g;s/?source=website",$//g')
 	local _4kvideodownload_deb=$(echo $_4kvideodownload_url | awk -F'/' '{print $NF}') # filtra a string para remover a parte da url. \/ escape para /
-	local current_version_4k_videodownloader="$(getDebPackVersion 4kvideodownloader)"
-	if [ $? != 0 ] || [ $? = 0 ] && ( ! echo $_4kvideodownload_deb | grep "$current_version_4k_videodownloader") ; then 
-		echo "$_4kvideodownload_deb" | grep "$current_version_4k_videodownloader"
+	local current_version_4k_videodownloader="$(getDebPackVersion 4kvideodownloader | sed 's/\-/\./g')"
+	get4kVideoDownloaderStatus
+	
+	if [ $?  = 1 ]; then 
 		Wget "`echo $_4kvideodownload_url`" # | sed 's|https:|http:|g'`"
 		dpkg -i $_4kvideodownload_deb
 		apt-get -f install -y 
@@ -195,7 +209,6 @@ if [ "$UID" = "0" ]; then
 				
 				LINUX_MODIFICATIONS="onboard openjdk-11-jre  gnome-packagekit libreoffice-l10n-pt-br myspell-pt-br epub-utils kinit kio kio-extras kded5"
 				APT_EXTRA_KEYS=(https://dl.winehq.org/wine-builds/winehq.key)
-				LINUX_MODIFICATIONS="onboard openjdk-11-jre  gnome-packagekit libreoffice-l10n-pt-br myspell-pt-br epub-utils	 kinit kio kio-extras kded5"
 				APT_MODIFICATIONS="-t ${DEBIAN_VERSION}-backports "
 				APT_MODIFICATIONS+="libreoffice libreoffice-style-breeze libreoffice-writer libreoffice-calc libreoffice-impress"
 
