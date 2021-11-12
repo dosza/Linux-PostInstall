@@ -62,10 +62,9 @@ installVirtualbox(){
 #função que retorna o status de instalação do 4kvideodownloader
 get4kVideoDownloaderStatus(){
 	local _4kvideo_status=0
-	if [ "$current_version_4k_videodownloader" = "" ]; then 
+	if [ "$current_version_4k_videodownloader" = "" ] || ( [ "$current_version_4k_videodownloader" != "" ] && 
+	! echo $_4kvideodownload_deb | grep $current_version_4k_videodownloader >/dev/null ) ; then 
 		_4kvideo_status=1
-	else
-		( ! echo $_4kvideodownload_deb | grep $current_version_4k_videodownloader ) && _4kvideo_status=1
 	fi
 
 	return $_4kvideo_status
@@ -78,7 +77,7 @@ install4KVideoDownloader(){
 	local _4kvideodownload_deb=$(echo $_4kvideodownload_url | awk -F'/' '{print $NF}') # filtra a string para remover a parte da url. \/ escape para /
 	local current_version_4k_videodownloader="$(getDebPackVersion 4kvideodownloader | sed 's/\-/\./g')"
 	get4kVideoDownloaderStatus
-	
+
 	if [ $?  = 1 ]; then 
 		Wget "`echo $_4kvideodownload_url`" # | sed 's|https:|http:|g'`"
 		dpkg -i $_4kvideodownload_deb
