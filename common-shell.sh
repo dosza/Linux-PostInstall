@@ -728,11 +728,18 @@ ConfigureSourcesListByScript(){
 	
 }
 
+CheckMinDeps(){
+	CheckPackageDebIsInstalled wget
+	if [ $? !=  0 ]; then 
+		AptInstall $COMMON_SHELL_MIN_DEPS
+	fi
+}
 getAptKeys(){
 	if [ $# -lt 1 ] || [ "$1" = "" ] ; then return 1; fi
 
 	isVariableArray $1
 	newPtr ref_apt_keys=$1
+	CheckMinDeps
 	echo "Getting apt Keys ..."
 	arrayMap ref_apt_keys key 'Wget -qO- "$key" | apt-key add - '
 	
