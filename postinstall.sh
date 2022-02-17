@@ -261,7 +261,6 @@ if [ "$UID" = "0" ]; then
 				;;
 				"--i-virtualbox")
 					installVirtualbox
-					exit 0;
 				;;
 				"--i-dev")
 					PROGRAM_INSTALL=$PROGRAM_INSTALL${DEV_TOOLS}
