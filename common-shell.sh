@@ -767,23 +767,24 @@ CheckPackageDebIsInstalled(){
 	fi
 	exec 2> /dev/null dpkg -s  "$1" | grep 'Status: install'  > /dev/null
 }
+setDebianEnvFrontend(){
+	if [ $is_gnome_apt_frontend_installed = 0 ]; then 
+		export DEBIAN_FRONTEND=gnome
+	else 
+		[ $is_kde_apt_frontend_installed = 0 ] && 
+			export DEBIAN_FRONTEND=kde
+	fi
+}
+
 getCurrentDebianFrontend(){
 	tty | grep pts/[0-9] > /dev/null 
-	if [ $? = 0 ]; then
-		CheckPackageDebIsInstalled libgtk3-perl 
-		local is_gnome_apt_frontend_installed=$?
-		
-		CheckPackageDebIsInstalled "debconf-kde-helper"
-		local is_kde_apt_frontend_installed=$?
+	[ $? != 0 ] && return $?
 
-
-		if [ $is_gnome_apt_frontend_installed = 0 ]; then 
-			export DEBIAN_FRONTEND=gnome
-		else 
-			if [ $is_kde_apt_frontend_installed = 0 ];then
-				export DEBIAN_FRONTEND=kde
-			fi
-		fi
-	fi
+	CheckPackageDebIsInstalled libgtk3-perl 
+	local is_gnome_apt_frontend_installed=$?
+	
+	CheckPackageDebIsInstalled "debconf-kde-helper"
+	local is_kde_apt_frontend_installed=$?
+	setDebianEnvFrontend
 }
 
