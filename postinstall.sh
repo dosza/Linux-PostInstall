@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 # Autor: Daniel Oliveira Souza
 # Descrição: Faz a configuração de pós instalação do linux mint (ubuntu ou outro variante da família debian"
 # Versão: 0.2.4
