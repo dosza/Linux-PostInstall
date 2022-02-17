@@ -32,6 +32,7 @@ APT_LOCKS=(
 )
 
 COMMON_SHELL_MIN_DEPS="wget psmisc"
+SLEEP_TIME=0.2
 shopt  -s expand_aliases
 alias newPtr='declare -n'
 alias isFalse='if [ $? != 0 ]; then return 1; fi'
@@ -643,6 +644,7 @@ IsFileBusy(){
 			echo "Wait for $1..."
 			msg=1;
 		fi
+		sleep $SLEEP_TIME
 	done
 }
 
