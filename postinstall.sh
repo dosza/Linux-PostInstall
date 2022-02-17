@@ -79,7 +79,7 @@ install4KVideoDownloader(){
 	get4kVideoDownloaderStatus
 
 	if [ $?  = 1 ]; then 
-		Wget "`echo $_4kvideodownload_url`" # | sed 's|https:|http:|g'`"
+		Wget "$_4kvideodownload_url"
 		dpkg -i $_4kvideodownload_deb
 		apt-get -f install -y 
 		rm $_4kvideodownload_deb
