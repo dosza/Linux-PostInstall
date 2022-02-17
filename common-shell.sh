@@ -14,16 +14,16 @@
 
 #GLOBAL VARIABLES
 #----ColorTerm
-export VERDE=$'\e[1;32m'
-export AMARELO=$'\e[01;33m'
-export SUBLINHADO=$'4'
-export NEGRITO=$'\e[1m'
-export VERMELHO=$'\e[1;31m'
-export VERMELHO_SUBLINHADO=$'\e[1;4;31m'
-export AZUL=$'\e[1;34m'
-export NORMAL=$'\e[0m'
-export BASH_TRUE=0
-export BASH_FALSE=1
+VERDE=$'\e[1;32m'
+AMARELO=$'\e[01;33m'
+SUBLINHADO=$'4'
+NEGRITO=$'\e[1m'
+VERMELHO=$'\e[1;31m'
+VERMELHO_SUBLINHADO=$'\e[1;4;31m'
+AZUL=$'\e[1;34m'
+NORMAL=$'\e[0m'
+BASH_TRUE=0
+BASH_FALSE=1
 APT_LOCKS=(
 	"/var/lib/dpkg/lock"
 	"/var/lib/apt/lists/lock"
