@@ -650,13 +650,13 @@ AptDistUpgrade(){
 	local apt_opts=(-y --allow-unauthenticated)
 	local apt_opts_err=(--fix-missing)
 
-	IsFileBusy apt ${APT_LOCKS}
+	IsFileBusy apt ${APT_LOCKS[*]}
 	apt-get update
-	IsFileBusy apt ${APT_LOCKS}
+	IsFileBusy apt ${APT_LOCKS[*]}
 	apt-get dist-upgrade -y ${apt_opts[*]}
 	
 	if [ $? != 0 ]; then
-		IsFileBusy apt ${APT_LOCKS}
+		IsFileBusy apt ${APT_LOCKS[*]}
 		apt-get dist-upgrade -y ${apt_opts[*]} ${apt_opts_err}
 		
 		if [ $? != 0 ]; then 
@@ -685,7 +685,7 @@ AptInstall(){
 	IsFileBusy apt ${APT_LOCKS}
 	apt-get install $* ${apt_opts[*]}
 	if [ "$?" != "0" ]; then
-		IsFileBusy apt ${APT_LOCKS}
+		IsFileBusy apt ${APT_LOCKS[*]}
 		apt-get install $* ${apt_opts[*]} ${apt_opts_err[*]}
 		if [ $? != 0 ]; then 
 			echo "possible network instability! Try later!"
