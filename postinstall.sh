@@ -82,9 +82,8 @@ install4KVideoDownloader(){
 
 	local _4kvideodownload_deb=$(echo $_4kvideodownload_url | awk -F'/' '{print $NF}') # filtra a string para remover a parte da url. \/ escape para /
 	local current_version_4k_videodownloader="$(getDebPackVersion 4kvideodownloader | sed 's/\-/\./g')"
-	get4kVideoDownloaderStatus
-
-	if [ $?  = 1 ]; then 
+	
+	if ! get4kVideoDownloaderStatus; then 
 		Wget "$_4kvideodownload_url"
 		dpkg -i $_4kvideodownload_deb
 		apt-get -f install -y 
