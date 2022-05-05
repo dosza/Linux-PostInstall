@@ -1,7 +1,7 @@
 #!/bin/bash
 # Autor: Daniel Oliveira Souza
 # Descrição: Faz a configuração de pós instalação do linux mint (ubuntu ou outro variante da família debian"
-# Versão: 0.2.4
+# Versão: 0.2.5
 #--------------------------------------------------------Variaveis --------------------------------------------------
 if [ -e "$PWD/common-shell.sh" ]; then
 	source "$PWD/common-shell.sh"
@@ -10,7 +10,7 @@ elif [ -e "$(dirname $0)/common-shell.sh" ]; then
 fi
 
 
-POSTINSTALL_VERSION='0.2.4'
+POSTINSTALL_VERSION='0.2.5'
 FLAG=$#
 WELCOME_POSTINSTALL_MSG="Linux Post Install to EndUser v${POSTINSTALL_VERSION}"
 APT_LIST="/etc/apt/sources.list"
@@ -73,7 +73,14 @@ get4kVideoDownloaderStatus(){
 #função para baixar e instalar o 4kvideodownloader
 install4KVideoDownloader(){
 	local product_videodownloader='https://www.4kdownload.com/pt-br/products/product-videodownloader'
-	local _4kvideodownload_url=$( wget -qO-  $product_videodownloader | grep amd64.deb | sed '/^\s*ubuntu:/d;s/\s*\"downloadUrl\"\s://g;s/^\s"//g;s/?source=website",$//g')
+	local _4kvideodownload_url=$( 
+		wget -qO-  $product_videodownloader | 
+		grep amd64.deb | 
+		grep downloadUrl|
+		awk -F' : ' '{ print $2 }' |
+		sed 's/ //g;s/"//g;s/?source=website,//g'
+	)
+
 	local _4kvideodownload_deb=$(echo $_4kvideodownload_url | awk -F'/' '{print $NF}') # filtra a string para remover a parte da url. \/ escape para /
 	local current_version_4k_videodownloader="$(getDebPackVersion 4kvideodownloader | sed 's/\-/\./g')"
 	get4kVideoDownloaderStatus
