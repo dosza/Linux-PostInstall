@@ -75,8 +75,7 @@ install4KVideoDownloader(){
 	local product_videodownloader='https://www.4kdownload.com/pt-br/products/product-videodownloader'
 	local _4kvideodownload_url=$( 
 		wget -qO-  $product_videodownloader | 
-		grep amd64.deb | 
-		grep downloadUrl|
+		grep '"downloadUrl" : "https://.*amd64.deb'|
 		awk -F' : ' '{ print $2 }' |
 		sed 's/ //g;s/"//g;s/?source=website,//g'
 	)
