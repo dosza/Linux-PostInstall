@@ -1,8 +1,10 @@
 #!/bin/bash
 # Autor: Daniel Oliveira Souza
 # Descrição: Faz a configuração de pós instalação do linux mint (ubuntu ou outro variante da família debian"
-# Versão: 0.2.5
+# Versão: 0.2.6
 #--------------------------------------------------------Variaveis --------------------------------------------------
+source /etc/os-release
+
 if [ -e "$PWD/common-shell.sh" ]; then
 	source "$PWD/common-shell.sh"
 elif [ -e "$(dirname $0)/common-shell.sh" ]; then
@@ -10,7 +12,7 @@ elif [ -e "$(dirname $0)/common-shell.sh" ]; then
 fi
 
 
-POSTINSTALL_VERSION='0.2.5'
+POSTINSTALL_VERSION='0.2.6'
 FLAG=$#
 WELCOME_POSTINSTALL_MSG="Linux Post Install to EndUser v${POSTINSTALL_VERSION}"
 APT_LIST="/etc/apt/sources.list"
@@ -26,8 +28,8 @@ GAMES="supertux extremetuxracer gweled gnome-mahjongg "
 MTP_SPP="libmtp-common mtp-tools libmtp-dev libmtp-runtime libmtp9 "
 SDL_LIBS="libsdl-ttf2.0-dev libsdl-sound1.2 libsdl-gfx1.2-dev libsdl-mixer1.2-dev libsdl-image1.2-dev "
 DEV_TOOLS="g++ mesa-utils sublime-text android-tools-fastboot android-tools-adb "
-MULTIMEDIA="vlc language-pack-kde-pt kolourpaint4 gimp gimp-data-extras krita winff audacity  "
-NON_FREE="exfat-utils  exfat-fuse  rar unrar p7zip-full p7zip-rar ttf-mscorefonts-installer "
+MULTIMEDIA="vlc language-pack-kde-pt kolourpaint gimp gimp-data-extras krita winff audacity  "
+NON_FREE="rar unrar p7zip-full p7zip-rar ttf-mscorefonts-installer "
 SYSTEM=" gparted dnsmasq-base bleachbit  apt-transport-https "
 EDUCATION="geogebra5 "
 ARGV=($*)
@@ -80,7 +82,11 @@ install4KVideoDownloader(){
 		sed 's/ //g;s/"//g;s/?source=website,//g'
 	)
 
-	local _4kvideodownload_deb=$(echo $_4kvideodownload_url | awk -F'/' '{print $NF}') # filtra a string para remover a parte da url. \/ escape para /
+	local _4kvideodownload_deb=$(
+		echo $_4kvideodownload_url |
+		awk -F'/' '{print $NF}'
+	)
+	# filtra a string para remover a parte da url. \/ escape para /
 	local current_version_4k_videodownloader="$(getDebPackVersion 4kvideodownloader | sed 's/\-/\./g')"
 	
 	if ! get4kVideoDownloaderStatus; then 
@@ -125,13 +131,15 @@ basicInstall(){
 	echo "sua string de instalação é:" $PROGRAM_INSTALL
 	echo "Este script irá configurar seu computador para o uso"
 	AptDistUpgrade
-	AptInstall $COMMON_SHELL_MIN_DEPS $PROGRAM_INSTALL; 
+	AptInstall $COMMON_SHELL_MIN_DEPS $PROGRAM_INSTALL
+	echo "LINUX_MODIFICATIONS:$LINUX_MODIFICATIONS"
 	AptInstall $LINUX_MODIFICATIONS;
 	[ "$APT_MODIFICATIONS" != "" ] && AptInstall $APT_MODIFICATIONS;
 	AptInstall $WEB_BROWSER;
 	AptRemove $program_remove
+	echo 'installing 4k '
 	install4KVideoDownloader
-	AptInstall -f
+	AptInstall "-f"
 }
 
 DebianExtraActions(){
@@ -175,8 +183,9 @@ DebianExtraActions(){
 if [ "$UID" = "0" ]; then
 	
 	# decide se arquitetura 
-	LINUX_VERSION=$(cat /etc/issue.net);
-	LINUX_RELEASE="`cat /etc/issue.net | sed 's/[a-Z]*[[:blank:]]*//g'`"
+
+	LINUX_VERSION="$NAME"
+
 
 	case "$ARQUITETURA" in 
 		"amd64" | "x86_64" )
@@ -188,11 +197,10 @@ if [ "$UID" = "0" ]; then
 		;;
 	esac
 
-
 		#Descobre se o a distribuição do linux você está usando 
 		case "$LINUX_VERSION" in
 	        *"Linux Mint"*  | *"Ubuntu"* | *"Zorin"*)
-				MakeSourcesListD "focal" 1
+				MakeSourcesListD "${UBUNTU_CODENAME}" 1
 				#executa configurações específicas para o linux mint 
 			    LINUX_MODIFICATIONS=" android-tools-adb openjdk-8-jre  oxygen-icon-theme libreoffice-style-breeze libreoffice libreoffice-writer libreoffice-calc libreoffice-impress "
             ;;
@@ -200,17 +208,8 @@ if [ "$UID" = "0" ]; then
 			*"Debian"* )
 				#COnfigurações específicas para debian
 				#gerando o sources.list 
-				case "$LINUX_RELEASE" in 
-					*"10"*)
-						DEBIAN_VERSION="buster"
-						MakeSourcesListD $DEBIAN_VERSION 0
-					;;
-					*"11"*)
-						DEBIAN_VERSION="bullseye"
-						MakeSourcesListD $DEBIAN_VERSION 0
-					;;
-				esac
-				
+
+				DEBIAN_VERSION="${VERSION_CODENAME}"
 				LINUX_MODIFICATIONS="onboard openjdk-11-jre  gnome-packagekit libreoffice-l10n-pt-br myspell-pt-br epub-utils kinit kio kio-extras kded5"
 				APT_EXTRA_KEYS=(https://dl.winehq.org/wine-builds/winehq.key)
 				APT_MODIFICATIONS="-t ${DEBIAN_VERSION}-backports "
@@ -238,6 +237,7 @@ if [ "$UID" = "0" ]; then
 				
 				getAptKeys APT_EXTRA_KEYS
 				WriterFileln $APT_LIST SOURCES_LIST_OFICIAL_STR
+				MakeSourcesListD $DEBIAN_VERSION 0
 				DebianExtraActions
 			;;
 		esac
@@ -246,29 +246,32 @@ if [ "$UID" = "0" ]; then
 	if [ $# = 0 ]; then
 		PROGRAM_INSTALL=${MTP_SPP}${SDL_LIBS}${MULTIMEDIA}${SYSTEM}
 	else
-		PROGRAM_INSTALL=$PROGRAM_INSTALL$NON_FREE$SYSTEM
+		PROGRAM_INSTALL+=$SYSTEM
 		for((i=0;i<$#;i++)); do
 			case  "${ARGV[i]}" in
 				"--i-games")
-					PROGRAM_INSTALL=$PROGRAM_INSTALL$GAMES
+					PROGRAM_INSTALL+=$GAMES
 					;;
 				"--i-mtp_spp")
-					PROGRAM_INSTALL=$PROGRAM_INSTALL$MTP_SPP
+					PROGRAM_INSTALL+=$MTP_SPP
 					;;
 				"--i-sdl_libs")
-					PROGRAM_INSTALL=$PROGRAM_INSTALL$SDL_LIBS
+					PROGRAM_INSTALL+=$SDL_LIBS
 					;;
 				"--i-multimedia")
-					PROGRAM_INSTALL=$PROGRAM_INSTALL$MULTIMEDIA
+					PROGRAM_INSTALL+=$MULTIMEDIA
 				;;
 				"--i-education")
-					PROGRAM_INSTALL=$PROGRAM_INSTALL$EDUCATION
+					PROGRAM_INSTALL+=$EDUCATION
 				;;
 				"--i-virtualbox")
 					installVirtualbox
 				;;
 				"--i-dev")
-					PROGRAM_INSTALL=$PROGRAM_INSTALL${DEV_TOOLS}
+					PROGRAM_INSTALL+=${DEV_TOOLS}
+				;;
+				"--i-non-free")
+					PROGRAM_INSTALL+=$NON_FREE
 				;;
 			esac
 		done
