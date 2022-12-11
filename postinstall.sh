@@ -51,18 +51,19 @@ installVirtualbox(){
 	local vbox_ext_str=($(dpkg -l ${VIRTUALBOX_VERSION} | grep virtualbox))
 	local vbox_ext_pack_version=${vbox_ext_str[2]%%\-*}
 	local vbox_ext_pack_url="https://download.virtualbox.org/virtualbox/${vbox_ext_pack_version}/Oracle_VM_VirtualBox_Extension_Pack-${vbox_ext_pack_version}.vbox-extpack"	
-	Wget "${vbox_ext_pack_url}"
+	local vbox_ext_pack_file=$(basename "$vbox_ext_pack_url")
 	
+	Wget "${vbox_ext_pack_url}"
+
 	usuarios=($( grep 100 /etc/group | cut -d: -f1))
 	unset usuarios[0];
 	
 	arrayMap usuarios usuario '
 		adduser $usuario vboxusers'
 	
-
-	if [ -e "Oracle_VM_VirtualBox_Extension_Pack-${vbox_ext_pack_version}.vbox-extpack" ]; then
-		echo "y" | VBoxManage extpack install --replace "Oracle_VM_VirtualBox_Extension_Pack-${vbox_ext_pack_version}.vbox-extpack"
-		rm "Oracle_VM_VirtualBox_Extension_Pack-${vbox_ext_pack_version}.vbox-extpack"
+	if [ -e "${vbox_ext_pack_file}" ]; then
+		echo "y" | VBoxManage extpack install --replace "${vbox_ext_pack_file}"
+		rm "${vbox_ext_pack_file}"
 	else 
 		echo "Não foi possível obter o virtualbox :(  Tente mais tarde!"
 		exit 1
