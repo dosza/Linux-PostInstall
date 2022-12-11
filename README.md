@@ -1,40 +1,40 @@
 <h1 align="center">
 	Linux Post Install<br/>
-	<a href="https://github.com/DanielOliveiraSouza/Linux-PostInstall/archive/v0.2.2.zip"><img src="https://img.shields.io/badge/Release-v0.2.2-green">
+	<a href="https://github.com/DanielOliveiraSouza/Linux-PostInstall/archive/v0.2.7.zip"><img src="https://img.shields.io/badge/Release-v0.2.7-green">
 	</a>
 </h1>
 
 <p>
-	Linux-PostInstall é uma ferramenta de linha de comando que permite a automação da instalação e configuração de programas em uma distribuição Linux baseada em Debian.
-	Desenvolvido desde 22/10/2015,script com objetivo similar ao <a href="https://github.com/DanielOliveiraSouza/ufmt-cua-lab-tools"> UFMT CUA Lab Tools</a>, tem o  objetivo de tornar mais fácil a utilização do Linux.
+	Linux-PostInstall é uma ferramenta de linha de comando que permite a automação da instalação e configuração de programas em uma distribuição Linux baseada em Debian.<br/>
+	O objetivo desse script é tornar a pós instalação do Linux mais amigável e rápida!
+
 </p>
 
 Distribuições  Oficialmente Suportadas
 ----
 
-<ul>
-	<li>Debian/GNU Linux 10</li>
-	<li>Ubuntu 18.04 LTS</li>
-	<li>Linux Mint 20 <strong>Cinnamon</strong></li>
-</ul>		
++	Debian/GNU Linux 11
++	Ubuntu 20.04 LTS
++	Linux Mint 20 **Cinnamon**
+
+Mudanças da versão 0.2.7
+---
++	Repositório da Oracle Virtualbox não é mais configurado por padrão<br/>
+	Somente é suportado o pacote (.deb) oficial de sua distro Linux !!
 
 Oque a ferramenta faz?
 ---
++	Configura repositórios
++	Instala utilitários
++	Realiza pós-configuração
 
-<ul>
-	<li>Configura repositórios</li>
-	<li>Instala utilitários</li>
-	<li>Realiza pós-configuração</li>
-</ul> 
 
 Oque a ferramenta instala?
 ---
-<ul>
-	<li>Softwares de multímidia (VLC,audacity,winff,entre outros)</li>
-	<li>Editores de imagem (Gimp,kolourpaint,entre outros)</li>
-	<li>Bibliotecas e utilitários para melhor funcionamento do sistema (libmtp, java (openJRE,gparted,entre outros...))</li>
-	<li>Softwares  uteis (para extrair arquivos rar,7zip,exfat,source,Google Chrome,entre outros)</li>
-</ul>
++	Softwares de multímidia (VLC,audacity,winff,entre outros)
++	Editores de imagem (Gimp,kolourpaint,entre outros)
++	Bibliotecas e utilitários para melhor funcionamento do sistema (libmtp, java (openJRE,gparted,entre outros...))
++	Softwares  uteis (para extrair arquivos rar,7zip,exfat,source,Google Chrome,entre outros)
 
 
 Como usar?
@@ -56,37 +56,34 @@ user@pc:~$ sudo bash postinstall.sh 	--i-virtualbox		#Instala e configura o Virt
 
 Softwares Proprietários Instalados
 ---
-<ul>
-	<li>Google Chrome</li>
-	<li>Rar (implementaçao do algoritmo de descompressão)</li>
-	<li>Fontes True type Microsoft <strong> (obs: desde que aceite os termos de licença)</strong></li>
-	<li>EXFat (implementação aberta do sistema de arquivos extfat e utilitários)
-	<li>4K Video Downlaoder (software para baixar vídeos do Youtube)</li>
-</ul>
-
++	Google Chrome
++	Rar (implementaçao do algoritmo de descompressão)
++	Fontes True type Microsoft **(obs: desde que aceite os termos de licença)**
++	EXFat (implementação aberta do sistema de arquivos extfat e utilitários)
++	4K Video Downlaoder (software para baixar vídeos do Youtube)
 	
 
 Sobre a Configuração de repositórios:
 ---
 Esta ferramenta adiciona alguns repositórios para atualizar softwares
-<ul>
-	<li>Debian:Sobrescreve o arquivo /etc/apt/sources.list e adiciona as fontes <em>nonfree</em>,<em>contrib</em> e <em>backports</em></li>
-</ul>
++	Debian:
+	+	Sobrescreve o arquivo /etc/apt/sources.list e adiciona as fontes *nonfree*,*contrib* e *backports*
+	+	Adiciona repositório do Wine
+
 
 Repositórios comuns adicionados
 ---
-<ul>
-	<li>Google Chrome</li>
-	<li>Geogebra (não é instalado por padrão, apenas é repositório configurado)</li>
-	<li>Sublime-text</li>
-	<li>Virtualbox (não é instalado por padrão, apenas o repositório configurado)</li>
-</ul>
+
++	Google Chrome
++ 	Geogebra (não é instalado por padrão, apenas é repositório configurado)</li>
++	Sublime-text
+
 
 <p>
-<strong>Obs:</strong>  Está em desenvolvimento os modos:
-<ul>
-	<li><em>free</em>  (somente software livre)!</li>
-	<li><em>stable</em> (somente software estáveis)!</li>
-	<li><em>dev</em> (somente modo desenvolvedor)! </li>
-</ul>
+	<strong>Obs:</strong>  Está em desenvolvimento os modos:
+	<ul>
+		<li><em>free</em>  (somente software livre)!</li>
+		<li><em>stable</em> (somente software estáveis)!</li>
+		<li><em>dev</em> (somente modo desenvolvedor)! </li>
+	</ul>
 </p>
