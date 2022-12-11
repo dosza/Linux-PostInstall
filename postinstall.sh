@@ -291,9 +291,9 @@ if [ "$UID" = "0" ]; then
 		#linguagem C
 		printf "Sinto muito, você não tem permissões administrativas para executar este script!\n
 		\rTente novamente executando este comando:\nsudo postinstall.sh\n"
-		#exit 1
-		echo "Pressione qualquer tecla para encerrar..."
-		sleep 10
+		sleep 1
+		printf "%s" "Pressione qualquer tecla para encerrar ... "
+		read -n 1 exit_key
 		exit 1 
 	fi
 
