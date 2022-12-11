@@ -1,7 +1,7 @@
 #!/bin/bash
 # Autor: Daniel Oliveira Souza
 # Descrição: Faz a configuração de pós instalação do linux mint (ubuntu ou outro variante da família debian"
-# Versão: 0.2.6
+# Versão: 0.2.7
 #--------------------------------------------------------Variaveis --------------------------------------------------
 source /etc/os-release
 
@@ -12,7 +12,7 @@ elif [ -e "$(dirname $0)/common-shell.sh" ]; then
 fi
 
 
-POSTINSTALL_VERSION='0.2.6'
+POSTINSTALL_VERSION='0.2.7'
 FLAG=$#
 WELCOME_POSTINSTALL_MSG="Linux Post Install to EndUser v${POSTINSTALL_VERSION}"
 APT_LIST="/etc/apt/sources.list"
@@ -23,7 +23,7 @@ FLAG_WEB_BROWSER=0
 ARQUITETURA=$(arch)
 PROGRAM_INSTALL=""
 LINUX_VERSION=$(cat /etc/issue.net);
-VIRTUALBOX_VERSION='virtualbox-6.1'
+ORACLE_REPO_VIRTUALBOX_VERSION='virtualbox-6.1'
 GAMES="supertux extremetuxracer gweled gnome-mahjongg "
 MTP_SPP="libmtp-common mtp-tools libmtp-dev libmtp-runtime libmtp9 "
 SDL_LIBS="libsdl-ttf2.0-dev libsdl-sound1.2 libsdl-gfx1.2-dev libsdl-mixer1.2-dev libsdl-image1.2-dev "
@@ -34,16 +34,25 @@ SYSTEM=" gparted dnsmasq-base bleachbit  apt-transport-https "
 EDUCATION="geogebra5 "
 ARGV=($*)
 UNSUPPORTED_JAVA_PPA=/etc/apt/sources.list.d/webupd8team-java.list
-#
+VIRTUALBOX_VERSION=virtualbox
+
+#still compatible older installations
+#set virtualbox from Oracle repo, if is installed
+getCurrentVirtualBoxInstalled(){
+	if CheckPackageDebIsInstalled $ORACLE_REPO_VIRTUALBOX_VERSION; then 
+		VIRTUALBOX_VERSION=$ORACLE_REPO_VIRTUALBOX_VERSION
+	fi
+}
 installVirtualbox(){
 
+	getCurrentVirtualBoxInstalled
 	AptInstall $VIRTUALBOX_VERSION 
+
 	local vbox_ext_str=($(dpkg -l ${VIRTUALBOX_VERSION} | grep virtualbox))
-	local vbox_ext_pack_version=${vbox_ext_str[2]}
-	local vbox_ext_pack_version=${vbox_ext_pack_version%\-*} #expansão remove caractere traço e tudo que vier a frente dele
+	local vbox_ext_pack_version=${vbox_ext_str[2]%%\-*}
 	local vbox_ext_pack_url="https://download.virtualbox.org/virtualbox/${vbox_ext_pack_version}/Oracle_VM_VirtualBox_Extension_Pack-${vbox_ext_pack_version}.vbox-extpack"	
 	Wget "${vbox_ext_pack_url}"
-
+	
 	usuarios=($( grep 100 /etc/group | cut -d: -f1))
 	unset usuarios[0];
 	
@@ -95,7 +104,7 @@ install4KVideoDownloader(){
 		apt-get -f install -y 
 		rm $_4kvideodownload_deb
 	fi
-
+	
 }
 
 MakeSourcesListD(){
@@ -106,14 +115,14 @@ MakeSourcesListD(){
 		'/etc/apt/sources.list.d/google-chrome.list'
 		'/etc/apt/sources.list.d/sublime-text.list' 
 		'/etc/apt/sources.list.d/geogebra.list'
-		'/etc/apt/sources.list.d/virtualbox.list'
+	#	'/etc/apt/sources.list.d/virtualbox.list'
 		'/etc/apt/sources.list.d/teams.list')
 
 	local mirrors=(
 		'deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main' 
 		'deb https://download.sublimetext.com/ apt/stable/' 
 		'deb http://www.geogebra.net/linux/ stable main'
-		"deb [arch=amd64] https://download.virtualbox.org/virtualbox/debian ${dist_version} contrib"	
+	#	"deb [arch=amd64] https://download.virtualbox.org/virtualbox/debian ${dist_version} contrib"	
 		"deb [arch=amd64] https://packages.microsoft.com/repos/ms-teams stable main")
 
 	local apt_key_url_repository=(
