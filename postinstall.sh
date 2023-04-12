@@ -115,16 +115,12 @@ MakeSourcesListD(){
 	local repositorys=(
 		'/etc/apt/sources.list.d/google-chrome.list'
 		'/etc/apt/sources.list.d/sublime-text.list' 
-		'/etc/apt/sources.list.d/geogebra.list'
-	#	'/etc/apt/sources.list.d/virtualbox.list'
-		'/etc/apt/sources.list.d/teams.list')
+		'/etc/apt/sources.list.d/geogebra.list' )
 
 	local mirrors=(
 		'deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main' 
 		'deb https://download.sublimetext.com/ apt/stable/' 
-		'deb http://www.geogebra.net/linux/ stable main'
-	#	"deb [arch=amd64] https://download.virtualbox.org/virtualbox/debian ${dist_version} contrib"	
-		"deb [arch=amd64] https://packages.microsoft.com/repos/ms-teams stable main")
+		'deb http://www.geogebra.net/linux/ stable main' )
 
 	local apt_key_url_repository=(
 		"https://download.sublimetext.com/sublimehq-pub.gpg"
@@ -132,7 +128,7 @@ MakeSourcesListD(){
 		"https://static.geogebra.org/linux/office@geogebra.org.gpg.key"
 		"https://www.virtualbox.org/download/oracle_vbox_2016.asc"
 		"https://www.virtualbox.org/download/oracle_vbox.asc"
-		"https://packages.microsoft.com/keys/microsoft.asc")
+	)
 
 	ConfigureSourcesList apt_key_url_repository mirrors repositorys
 }
