@@ -5,8 +5,8 @@
 </h1>
 
 <p>
-	Linux-PostInstall é uma ferramenta de linha de comando que permite a automação da instalação e configuração de programas em uma distribuição Linux baseada em Debian.<br/>
-	O objetivo desse script é tornar a pós instalação do Linux mais amigável e rápida!
+	Linux-PostInstall é uma ferramenta de linha de comando que permite a automação da instalação e configuração de programas em uma distribuição Linux baseada em Debian.</br>
+	O objetivo desse script é tornar a pós-instalação do Linux mais amigável e rápida
 
 </p>
 
