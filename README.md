@@ -1,6 +1,6 @@
 <h1 align="center">
 	Linux Post Install<br/>
-	<a href="https://github.com/DanielOliveiraSouza/Linux-PostInstall/archive/v0.2.7.zip"><img src="https://img.shields.io/badge/Release-v0.2.7-green">
+	<a href="https://github.com/DanielOliveiraSouza/Linux-PostInstall/archive/v0.2.8.zip"><img src="https://img.shields.io/badge/Release-v0.2.8-green">
 	</a>
 </h1>
 
@@ -17,10 +17,9 @@ Distribuições  Oficialmente Suportadas
 +	Ubuntu 20.04 LTS
 +	Linux Mint 20 **Cinnamon**
 
-Mudanças da versão 0.2.7
+Mudanças da versão 0.2.8
 ---
-+	Repositório da Oracle Virtualbox não é mais configurado por padrão<br/>
-	Somente é suportado o pacote (.deb) oficial de sua distro Linux !!
++	4KVideoDownloader foi substituído pelo 4KVideoDownloaderPlus
 
 Oque a ferramenta faz?
 ---
@@ -48,7 +47,7 @@ user@pc:~$ sudo bash postinstall.sh 	--i-sdl_libs		#Instala bibliotecas SDL
 user@pc:~$ sudo bash postinstall.sh 	--i-multimedia		#Instala Softwares de multimídia
 user@pc:~$ sudo bash postinstall.sh 	--i-education		#Instala o Geogebra (atualizado)
 user@pc:~$ sudo bash postinstall.sh 	--i-virtualbox		#Instala e configura o Virtuabox (versão 6) (desde que aceite a licença)
-user@pc:~$ sudo bash postinstall.sh 	--u-4k		#Instala/atualiza somente o 4kvideodownloaderplus
+user@pc:~$ sudo bash postinstall.sh 	--u-4k				#Instala/atualiza somente o 4kvideodownloaderplus
 ```
 <p>
 	</pre>
