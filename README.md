@@ -48,6 +48,7 @@ user@pc:~$ sudo bash postinstall.sh 	--i-sdl_libs		#Instala bibliotecas SDL
 user@pc:~$ sudo bash postinstall.sh 	--i-multimedia		#Instala Softwares de multimídia
 user@pc:~$ sudo bash postinstall.sh 	--i-education		#Instala o Geogebra (atualizado)
 user@pc:~$ sudo bash postinstall.sh 	--i-virtualbox		#Instala e configura o Virtuabox (versão 6) (desde que aceite a licença)
+user@pc:~$ sudo bash postinstall.sh 	--u-4k		#Instala/atualiza somente o 4kvideodownloaderplus
 ```
 <p>
 	</pre>
@@ -60,7 +61,7 @@ Softwares Proprietários Instalados
 +	Rar (implementaçao do algoritmo de descompressão)
 +	Fontes True type Microsoft **(obs: desde que aceite os termos de licença)**
 +	EXFat (implementação aberta do sistema de arquivos extfat e utilitários)
-+	4K Video Downlaoder (software para baixar vídeos do Youtube)
++	4K Video Downlaoder Plus (software para baixar vídeos do Youtube)
 	
 
 Sobre a Configuração de repositórios:

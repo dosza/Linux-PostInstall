@@ -1,7 +1,7 @@
 #!/bin/bash
 # Autor: Daniel Oliveira Souza
 # Descrição: Faz a configuração de pós instalação do linux mint (ubuntu ou outro variante da família debian"
-# Versão: 0.2.7
+# Versão: 0.2.8
 #--------------------------------------------------------Variaveis --------------------------------------------------
 source /etc/os-release
 
@@ -12,7 +12,7 @@ elif [ -e "$(dirname $0)/common-shell.sh" ]; then
 fi
 
 
-POSTINSTALL_VERSION='0.2.7'
+POSTINSTALL_VERSION='0.2.8'
 FLAG=$#
 WELCOME_POSTINSTALL_MSG="Linux Post Install to EndUser v${POSTINSTALL_VERSION}"
 APT_LIST="/etc/apt/sources.list"
@@ -118,7 +118,6 @@ install4KVideoDownloader(){
 		sed 's/"//g'|
 		awk -F'_' '{ print $1 }'
 	)
-
 
 	parse4KUrlVersion
 
