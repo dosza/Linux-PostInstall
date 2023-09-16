@@ -82,22 +82,56 @@ get4kVideoDownloaderStatus(){
 	return $_4kvideo_status
 
 }
+
+parse4KUrlVersion(){
+
+	local _version="${_4kvideodownload_version}"
+	OLDIFS=$IFS 
+	IFS='.'
+	local _version_stream=($_version)
+	local version_stream_size=${#_version_stream[@]}
+	let version_stream_size--
+	unset _version_stream[$version_stream_size]
+	_4kvideodownload_version="$(
+		echo "${_version_stream[@]}" |
+		sed 's/ /./g'
+	)"	
+	IFS=$OLDIFS
+}
 #função para baixar e instalar o 4kvideodownloader
 install4KVideoDownloader(){
 	local product_videodownloader='https://www.4kdownload.com/pt-br/products/product-videodownloader'
 	local _4kvideodownload_url=$( 
-		wget -qO-  $product_videodownloader | 
-		grep '"downloadUrl" : "https://.*amd64.deb'|
-		awk -F' : ' '{ print $2 }' |
-		sed 's/ //g;s/"//g;s/?source=website,//g'
+		wget -qO-  $product_videodownloader |
+		grep '"fullVersion":'|
+		grep "ubuntu_x64" |
+		awk -F':' ' { print $2 }'
 	)
 
+	local _4kvideodownload_version=$(
+		echo "$_4kvideodownload_url" | 
+		awk -F'_' ' { print $2 }'		
+	)
+
+	_4kvideodownload_url=$(
+		echo $_4kvideodownload_url |
+		sed 's/"//g'|
+		awk -F'_' '{ print $1 }'
+	)
+
+
+	parse4KUrlVersion
+
+	local _4kvideodownload_url="https://dl.4kdownload.com/app/4k${_4kvideodownload_url}_${_4kvideodownload_version}-1_amd64.deb"
 	local _4kvideodownload_deb=$(
 		echo $_4kvideodownload_url |
 		awk -F'/' '{print $NF}'
 	)
-	# filtra a string para remover a parte da url. \/ escape para /
-	local current_version_4k_videodownloader="$(getDebPackVersion 4kvideodownloader | sed 's/\-/\./g')"
+
+	local current_version_4k_videodownloader="$(
+		getDebPackVersion 4kvideodownloaderplus | 
+		sed 's/\-/\./g'
+	)"
 	
 	if ! get4kVideoDownloaderStatus; then 
 		Wget "$_4kvideodownload_url"
@@ -278,6 +312,10 @@ if [ "$UID" = "0" ]; then
 				;;
 				"--i-non-free")
 					PROGRAM_INSTALL+=$NON_FREE
+				;;
+				"--u-4k")
+					install4KVideoDownloader
+					exit
 				;;
 			esac
 		done
