@@ -146,18 +146,16 @@ MakeSourcesListD(){
 	
 	local repositorys=(
 		'/etc/apt/sources.list.d/google-chrome.list'
-		'/etc/apt/sources.list.d/sublime-text.list' 
-		'/etc/apt/sources.list.d/geogebra.list' )
+		'/etc/apt/sources.list.d/sublime-text.list'  )
 
 	local mirrors=(
 		'deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main' 
 		'deb https://download.sublimetext.com/ apt/stable/' 
-		'deb http://www.geogebra.net/linux/ stable main' )
+	)
 
 	local apt_key_url_repository=(
 		"https://download.sublimetext.com/sublimehq-pub.gpg"
 		"https://dl-ssl.google.com/linux/linux_signing_key.pub"
-		"https://static.geogebra.org/linux/office@geogebra.org.gpg.key"
 		"https://www.virtualbox.org/download/oracle_vbox_2016.asc"
 		"https://www.virtualbox.org/download/oracle_vbox.asc"
 	)
@@ -313,7 +311,9 @@ if [ "$UID" = "0" ]; then
 				;;
 				"--u-4k")
 					install4KVideoDownloader
-					exit
+					if [ ${#ARGV[@]} = 1 ]; then
+						exit
+					fi
 				;;
 			esac
 		done
