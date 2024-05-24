@@ -31,11 +31,11 @@ DEV_TOOLS="g++ mesa-utils sublime-text android-tools-fastboot android-tools-adb 
 MULTIMEDIA="vlc language-pack-kde-pt kolourpaint gimp gimp-data-extras krita winff audacity  "
 NON_FREE="rar unrar p7zip-full p7zip-rar ttf-mscorefonts-installer "
 SYSTEM=" gparted dnsmasq-base bleachbit  apt-transport-https "
-EDUCATION="geogebra5 "
-ARGV=($*)
+EDUCATION=" "
+ARGV=($@)
 UNSUPPORTED_JAVA_PPA=/etc/apt/sources.list.d/webupd8team-java.list
 VIRTUALBOX_VERSION=virtualbox
-
+PROGRAM_REMOVE='4kvideodownloader'
 #still compatible older installations
 #set virtualbox from Oracle repo, if is installed
 getCurrentVirtualBoxInstalled(){
@@ -84,10 +84,9 @@ get4kVideoDownloaderStatus(){
 }
 
 parse4KUrlVersion(){
-
-	local _version="${_4kvideodownload_version}"
 	OLDIFS=$IFS 
 	IFS='.'
+	local _version="${_4kvideodownload_version}"
 	local _version_stream=($_version)
 	local version_stream_size=${#_version_stream[@]}
 	let version_stream_size--
@@ -175,7 +174,7 @@ basicInstall(){
 	AptInstall $LINUX_MODIFICATIONS;
 	[ "$APT_MODIFICATIONS" != "" ] && AptInstall $APT_MODIFICATIONS;
 	AptInstall $WEB_BROWSER;
-	AptRemove $program_remove
+	AptRemove $PROGRAM_REMOVE
 	echo 'installing 4k '
 	install4KVideoDownloader
 	AptInstall "-f"
