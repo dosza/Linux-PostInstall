@@ -24,14 +24,13 @@ ARQUITETURA=$(arch)
 PROGRAM_INSTALL=""
 LINUX_VERSION=$(cat /etc/issue.net);
 ORACLE_REPO_VIRTUALBOX_VERSION='virtualbox-6.1'
-GAMES="supertux extremetuxracer gweled gnome-mahjongg "
+GAMES="gweled gnome-mahjongg "
 MTP_SPP="libmtp-common mtp-tools libmtp-dev libmtp-runtime libmtp9 "
 SDL_LIBS="libsdl-ttf2.0-dev libsdl-sound1.2 libsdl-gfx1.2-dev libsdl-mixer1.2-dev libsdl-image1.2-dev "
 DEV_TOOLS="g++ mesa-utils sublime-text android-tools-fastboot android-tools-adb "
 MULTIMEDIA="vlc language-pack-kde-pt kolourpaint gimp gimp-data-extras krita winff audacity  "
 NON_FREE="rar unrar p7zip-full p7zip-rar ttf-mscorefonts-installer "
 SYSTEM=" gparted dnsmasq-base bleachbit  apt-transport-https "
-EDUCATION=" "
 ARGV=($@)
 UNSUPPORTED_JAVA_PPA=/etc/apt/sources.list.d/webupd8team-java.list
 VIRTUALBOX_VERSION=virtualbox
@@ -141,12 +140,11 @@ install4KVideoDownloader(){
 }
 
 MakeSourcesListD(){
-	local dist_version=$1
-	local flag_debian=$2
 	
-	local repositorys=(
+	local repositories=(
 		'/etc/apt/sources.list.d/google-chrome.list'
-		'/etc/apt/sources.list.d/sublime-text.list'  )
+		'/etc/apt/sources.list.d/sublime-text.list'  
+	)
 
 	local mirrors=(
 		'deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main' 
@@ -156,11 +154,9 @@ MakeSourcesListD(){
 	local apt_key_url_repository=(
 		"https://download.sublimetext.com/sublimehq-pub.gpg"
 		"https://dl-ssl.google.com/linux/linux_signing_key.pub"
-		"https://www.virtualbox.org/download/oracle_vbox_2016.asc"
-		"https://www.virtualbox.org/download/oracle_vbox.asc"
 	)
 
-	ConfigureSourcesList apt_key_url_repository mirrors repositorys
+	ConfigureSourcesList apt_key_url_repository mirrors repositories
 }
 
 basicInstall(){
