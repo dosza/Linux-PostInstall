@@ -1,6 +1,6 @@
 <h1 align="center">
 	Linux Post Install<br/>
-	<a href="https://github.com/DanielOliveiraSouza/Linux-PostInstall/archive/v0.3.0.zip"><img src="https://img.shields.io/badge/Release-v0.2.9-green">
+	<a href="https://github.com/DanielOliveiraSouza/Linux-PostInstall/archive/v0.3.0.zip"><img src="https://img.shields.io/badge/Release-v0.3.0-green">
 	</a>
 </h1>
 
