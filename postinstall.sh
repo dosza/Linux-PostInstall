@@ -27,8 +27,15 @@ ORACLE_REPO_VIRTUALBOX_VERSION='virtualbox-6.1'
 GAMES="gweled gnome-mahjongg "
 MTP_SPP="libmtp-common mtp-tools libmtp-dev libmtp-runtime libmtp9 "
 SDL_LIBS="libsdl-ttf2.0-dev libsdl-sound1.2 libsdl-gfx1.2-dev libsdl-mixer1.2-dev libsdl-image1.2-dev "
-DEV_TOOLS="g++ mesa-utils sublime-text android-tools-fastboot android-tools-adb "
-MULTIMEDIA="vlc language-pack-kde-pt kolourpaint gimp gimp-data-extras krita winff audacity  "
+DEV_TOOLS="g++ mesa-utils "
+ANDROID_DEV_TOOLS="android-tools-fastboot android-tools-adb"
+
+declare -A TEXT_EDITOR=(
+	['sublime']="sublime-text"
+	['kate']="kate"
+)
+
+MULTIMEDIA="vlc language-pack-kde-pt kolourpaint gimp gimp-data-extras winff"
 NON_FREE="rar unrar p7zip-full p7zip-rar ttf-mscorefonts-installer "
 SYSTEM=" gparted dnsmasq-base bleachbit  apt-transport-https "
 ARGV=($@)
