@@ -11,8 +11,9 @@ elif [ -e "$(dirname $0)/common-shell.sh" ]; then
 	source "$(dirname $0)/common-shell.sh" 
 fi
 
-
-POSTINSTALL_VERSION='0.2.8'
+declare  -r DEBIAN_SUPPORT_FIRMWARE_REPO=12
+JAVA_LTS_VERSION=(21 17 11)
+POSTINSTALL_VERSION='0.3.0'
 FLAG=$#
 WELCOME_POSTINSTALL_MSG="Linux Post Install to EndUser v${POSTINSTALL_VERSION}"
 APT_LIST="/etc/apt/sources.list"
@@ -20,7 +21,7 @@ APT_MODIFICATIONS=""
 LINUX_MODIFICATIONS=""
 WEB_BROWSER="google-chrome-stable"
 FLAG_WEB_BROWSER=0
-ARQUITETURA=$(arch)
+PROCESSOR_ARCH=$(arch)
 PROGRAM_INSTALL=""
 LINUX_VERSION=$(cat /etc/issue.net);
 ORACLE_REPO_VIRTUALBOX_VERSION='virtualbox-6.1'
@@ -167,7 +168,9 @@ MakeSourcesListD(){
 }
 
 basicInstall(){
-	echo "sua string de instalação é:" $PROGRAM_INSTALL
+	applyConfigByDistroLinux
+	getCurrentDebianFrontend
+	echo "Serão instalados: ${VERDE}$PROGRAM_INSTALL${NORMAL}"
 	echo "Este script irá configurar seu computador para o uso"
 	AptDistUpgrade
 	AptInstall $COMMON_SHELL_MIN_DEPS $PROGRAM_INSTALL
@@ -218,15 +221,128 @@ DebianExtraActions(){
 	[ -e $UNSUPPORTED_JAVA_PPA ] && rm $UNSUPPORTED_JAVA_PPA
 }
 
-#verifica se o usuário tem poderes administrativos	
-if [ "$UID" = "0" ]; then
+
+setMajorJavaLtsSupported(){
+	[ "$1" =  "" ] && return
+
+	local java_type="$1"
+	local java_deb
 	
-	# decide se arquitetura 
+	for java_version in "${JAVA_LTS_VERSION[@]}";do
+		
+		java_deb="openjdk-${java_version}-${java_type}"
+		if getDebPackVersion  "$java_deb" &>/dev/null; then
+			echo "Selecionando: ${VERDE}Java ${java_type^^} LTS $java_version${NORMAL}"
+			LINUX_MODIFICATIONS+=" $java_deb"
+			return
+		fi
+	done
+}
 
-	LINUX_VERSION="$NAME"
 
+configureDebianNonFreeFirmwareRepository(){
+	local debian_id="${DEBIAN_VERSION//\.*/}"
+	local non_free_pattern='(non\-free\-firmware)'
+	
+	[ $debian_id -lt $DEBIAN_SUPPORT_FIRMWARE_REPO ] && return 
 
-	case "$ARQUITETURA" in 
+	arrayMap SOURCES_LIST_OFICIAL_STR line index '{
+		[[ "$line" =~ $non_free_pattern ]] && continue
+		SOURCES_LIST_OFICIAL_STR[$index]="$line non-free-firmware"
+	}'
+	
+}
+
+runMenu(){
+	
+	local answer
+	local mark_to_install=()
+	local -A install_list=(
+		['Jogos básicos']="--i-games"
+		['Java']="--java"
+		['JDK']="--jdk"
+		['Suporte MTP']="--i-mtp_spp"
+		['Suporte SDL']="--i-sdl_libs"
+		['Multimidia']="--i-multimedia"
+		['Ferramentas de desenvolvedor']="--i-dev"
+		['Virtualbox']='--i-virtualbox'
+		['Softwares proprietários']='--i-non-free'
+		['Sublime Text']='--i-text=sublime'
+		['Ferramentas do Android']='--i-android-dev-tools'
+		['4K Video Downloader plus']="--u-4k"
+	)
+
+	arrayMap install_list install_code class '{
+		echo -en Deseja instalar "${VERDE}$class${NORMAL} s/n? "
+		read answer
+		[ "${answer,,}" != "s" ] && continue
+		mark_to_install+=("$install_code")
+	}'
+
+	setSoftwaresParaInstalar mark_to_install
+
+}
+
+setSoftwaresParaInstalar(){
+	! isVariabelDeclared $1 && return
+	newPtr softwares_ref=$1
+
+	for software_class in "${softwares_ref[@]}";do
+
+		case "$software_class" in
+			"--i-games")
+				PROGRAM_INSTALL+=$GAMES
+			;;
+			"--i-mtp_spp")
+				PROGRAM_INSTALL+=$MTP_SPP
+			;;
+			"--i-sdl_libs")
+				PROGRAM_INSTALL+=$SDL_LIBS
+			;;
+			"--i-multimedia")
+				PROGRAM_INSTALL+=$MULTIMEDIA
+			;;
+			"--i-virtualbox")
+				installVirtualbox
+			;;
+			"--i-dev")
+				PROGRAM_INSTALL+=${DEV_TOOLS}
+			;;
+			"--i-non-free")
+				PROGRAM_INSTALL+=$NON_FREE
+			;;
+			"--u-4k")
+				install4KVideoDownloader
+				if [ ${#softwares_ref[@]} = 1 ]; then
+					exit
+				fi
+			;;
+			"--java")
+				setMajorJavaLtsSupported "jre"
+			;;
+
+			"--i-text="*)
+				text_key="${software_class}"
+				text_key="${text_key//--i-text=/}"
+				text_editor="${TEXT_EDITOR[$text_key]}"
+				echo "Selecionando editor: ${VERDE}$text_editor${NORMAL}"
+				DEV_TOOLS+=" $text_editor"
+			;;
+
+			"--i-android-dev-tools")
+				echo "Selecionando: ${VERDE}Android Dev tools${NORMAL}"
+				DEV_TOOLS+=" $ANDROID_DEV_TOOLS"
+			;;
+
+			"--jdk")
+				setMajorJavaLtsSupported "jdk"
+			;;
+		esac
+	done
+}
+
+setActionsByLinuxArch(){
+	case "$PROCESSOR_ARCH" in 
 		"amd64" | "x86_64" )
 			FLAG_WEB_BROWSER=1;
 			;;
@@ -235,91 +351,70 @@ if [ "$UID" = "0" ]; then
 			exit 1;
 		;;
 	esac
+}
 
-		#Descobre se o a distribuição do linux você está usando 
-		case "$LINUX_VERSION" in
-	        *"Linux Mint"*  | *"Ubuntu"* | *"Zorin"*)
-				MakeSourcesListD "${UBUNTU_CODENAME}" 1
-				#executa configurações específicas para o linux mint 
-			    LINUX_MODIFICATIONS=" android-tools-adb openjdk-8-jre  oxygen-icon-theme libreoffice-style-breeze libreoffice libreoffice-writer libreoffice-calc libreoffice-impress "
-            ;;
+configureDebian(){
+	DEBIAN_VERSION="${VERSION_CODENAME}"
+	LINUX_MODIFICATIONS="onboard gnome-packagekit libreoffice-l10n-pt-br myspell-pt-br epub-utils kinit kio kio-extras kded5"
+	APT_EXTRA_KEYS=(https://dl.winehq.org/wine-builds/winehq.key)
+	APT_MODIFICATIONS="-t ${DEBIAN_VERSION}-backports "
+	APT_MODIFICATIONS+="libreoffice libreoffice-style-breeze libreoffice-writer libreoffice-calc libreoffice-impress"
 
-			*"Debian"* )
-				#COnfigurações específicas para debian
-				#gerando o sources.list 
+	SOURCES_LIST_OFICIAL_STR=(
+		"#Fonte de aplicativos apt"  
+		"deb http://ftp.br.debian.org/debian/ ${DEBIAN_VERSION} main contrib non-free"  
+		"deb-src http://ftp.br.debian.org/debian/ $DEBIAN_VERSION main contrib non-free"  
+		""  
+		"deb http://ftp.br.debian.org/debian-security/ ${DEBIAN_VERSION}-security main contrib non-free"  
+		"deb-src http://ftp.br.debian.org/debian-security/ ${DEBIAN_VERSION}-security main contrib non-free"  
+		""  
+		"# $DEBIAN_VERSION-updates, previously known as 'volatile'"  
+		"deb http://ftp.br.debian.org/debian/ ${DEBIAN_VERSION}-updates main contrib non-free"  
+		"deb-src http://ftp.br.debian.org/debian/ ${DEBIAN_VERSION}-updates main contrib non-free"  
+		""  
+		"#Adiciona fontes extras ao debian"  
+		"# debian backports"  
+		"deb http://ftp.debian.org/debian ${DEBIAN_VERSION}-backports main contrib non-free" 
+		"deb-src http://ftp.debian.org/debian ${DEBIAN_VERSION}-backports main contrib non-free" 
+	)
 
-				DEBIAN_VERSION="${VERSION_CODENAME}"
-				LINUX_MODIFICATIONS="onboard openjdk-11-jre  gnome-packagekit libreoffice-l10n-pt-br myspell-pt-br epub-utils kinit kio kio-extras kded5"
-				APT_EXTRA_KEYS=(https://dl.winehq.org/wine-builds/winehq.key)
-				APT_MODIFICATIONS="-t ${DEBIAN_VERSION}-backports "
-				APT_MODIFICATIONS+="libreoffice libreoffice-style-breeze libreoffice-writer libreoffice-calc libreoffice-impress"
+	configureDebianNonFreeFirmwareRepository
+	getAptKeys APT_EXTRA_KEYS
+	WriterFileln $APT_LIST SOURCES_LIST_OFICIAL_STR
+	MakeSourcesListD $DEBIAN_VERSION 0
+	DebianExtraActions
+}
 
-				SOURCES_LIST_OFICIAL_STR=(
-					"#Fonte de aplicativos apt"  
-					"deb http://ftp.br.debian.org/debian/ ${DEBIAN_VERSION} main contrib non-free"  
-					"deb-src http://ftp.br.debian.org/debian/ $DEBIAN_VERSION main contrib non-free"  
-					""  
-					"deb http://ftp.br.debian.org/debian-security/ ${DEBIAN_VERSION}-security main contrib non-free"  
-					"deb-src http://ftp.br.debian.org/debian-security/ ${DEBIAN_VERSION}-security main contrib non-free"  
-					""  
-					"# $DEBIAN_VERSION-updates, previously known as 'volatile'"  
-					"deb http://ftp.br.debian.org/debian/ ${DEBIAN_VERSION}-updates main contrib non-free"  
-					"deb-src http://ftp.br.debian.org/debian/ ${DEBIAN_VERSION}-updates main contrib non-free"  
-					""  
-					"#Adiciona fontes extras ao debian"  
-					"# debian backports"  
-					"deb http://ftp.debian.org/debian ${DEBIAN_VERSION}-backports main contrib non-free" 
-					"deb-src http://ftp.debian.org/debian ${DEBIAN_VERSION}-backports main contrib non-free" 
-					"#Adiciona suporte ao wine"
-					"deb https://dl.winehq.org/wine-builds/debian/ ${DEBIAN_VERSION} main"
-				)
-				
-				getAptKeys APT_EXTRA_KEYS
-				WriterFileln $APT_LIST SOURCES_LIST_OFICIAL_STR
-				MakeSourcesListD $DEBIAN_VERSION 0
-				DebianExtraActions
-			;;
-		esac
+applyConfigByDistroLinux(){
+	LINUX_VERSION="$NAME"
 
-	getCurrentDebianFrontend
+	setActionsByLinuxArch
+	case "$LINUX_VERSION" in
+        *"Linux Mint"*  | *"Ubuntu"* | *"Zorin"*)
+			MakeSourcesListD
+		    LINUX_MODIFICATIONS=" oxygen-icon-theme libreoffice-style-breeze libreoffice libreoffice-writer libreoffice-calc libreoffice-impress "
+        ;;
+
+		*"Debian"* )
+			configureDebian
+		;;
+	esac
+}
+#verifica se o usuário tem poderes administrativos	
+if [ "$UID" = "0" ]; then
+	
 	if [ $# = 0 ]; then
 		PROGRAM_INSTALL=${MTP_SPP}${SDL_LIBS}${MULTIMEDIA}${SYSTEM}
 	else
 		PROGRAM_INSTALL+=$SYSTEM
-		for((i=0;i<$#;i++)); do
-			case  "${ARGV[i]}" in
-				"--i-games")
-					PROGRAM_INSTALL+=$GAMES
-					;;
-				"--i-mtp_spp")
-					PROGRAM_INSTALL+=$MTP_SPP
-					;;
-				"--i-sdl_libs")
-					PROGRAM_INSTALL+=$SDL_LIBS
-					;;
-				"--i-multimedia")
-					PROGRAM_INSTALL+=$MULTIMEDIA
-				;;
-				"--i-education")
-					PROGRAM_INSTALL+=$EDUCATION
-				;;
-				"--i-virtualbox")
-					installVirtualbox
-				;;
-				"--i-dev")
-					PROGRAM_INSTALL+=${DEV_TOOLS}
-				;;
-				"--i-non-free")
-					PROGRAM_INSTALL+=$NON_FREE
-				;;
-				"--u-4k")
-					install4KVideoDownloader
-					if [ ${#ARGV[@]} = 1 ]; then
-						exit
-					fi
-				;;
-			esac
-		done
+		interactive_regex='(\-\-interactive)'
+		if [[ ! "$@" =~ $interactive_regex ]]; then
+			ARGV=("${ARGV[@]//--interactive/}")
+			setSoftwaresParaInstalar "ARGV"
+		else
+			runMenu
+		fi
+
 	fi
 		basicInstall
 	else
