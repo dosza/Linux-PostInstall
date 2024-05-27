@@ -137,10 +137,10 @@ arrayMap(){
 
 	case $# in
 		3)
-			eval "for _mapIdx in ${!refMap[*]};do $2=\${refMap[\$_mapIdx]}; $3; done"
+			eval "for _mapIdx in \${!refMap[@]} ;do $2=\${refMap[\$_mapIdx]}; $3; done"
 		;;
 		4)
-			eval "for $3 in ${!refMap[*]}; do $2=\${refMap[\$$3]}; $4; done" #  $2=$(eval echo ${refMap[$(echo \$$3)]});$4;done"
+			eval "for $3 in \"\${!refMap[@]}\"; do $2=\${refMap[\$$3]}; $4; done" #  $2=$(eval echo ${refMap[$(echo \$$3)]});$4;done"
 		;;
 	esac
 }
