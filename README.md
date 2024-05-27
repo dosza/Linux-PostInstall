@@ -63,9 +63,7 @@ Sobre a Configuração de repositórios:
 ---
 Esta ferramenta adiciona alguns repositórios para atualizar softwares
 +	Debian:
-	+	Sobrescreve o arquivo /etc/apt/sources.list e adiciona as fontes *nonfree*,*contrib* e *backports*
-	+	Adiciona repositório do Wine
-
+	+	Sobrescreve o arquivo /etc/apt/sources.list e adiciona as fontes *nonfree*,*contrib*, *backports*
 
 Repositórios comuns adicionados
 ---
