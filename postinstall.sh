@@ -467,7 +467,7 @@ applyConfigByDistroLinux(){
 	case "$LINUX_VERSION" in
         *"Linux Mint"*  | *"Ubuntu"* | *"Zorin"*)
 			MakeSourcesListD
-		    LINUX_MODIFICATIONS=" oxygen-icon-theme libreoffice-style-breeze libreoffice libreoffice-writer libreoffice-calc libreoffice-impress "
+			LINUX_MODIFICATIONS=" oxygen-icon-theme libreoffice-style-breeze libreoffice libreoffice-writer libreoffice-calc libreoffice-impress "
         ;;
 
 		*"Debian"* )
