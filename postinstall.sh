@@ -36,7 +36,7 @@ declare -A TEXT_EDITOR=(
 	['kate']="kate"
 )
 
-MULTIMEDIA="vlc language-pack-kde-pt kolourpaint gimp gimp-data-extras winff"
+MULTIMEDIA="vlc language-pack-kde-pt kolourpaint gimp gimp-data-extras winff "
 NON_FREE="rar unrar p7zip-full p7zip-rar ttf-mscorefonts-installer "
 SYSTEM=" gparted dnsmasq-base bleachbit  apt-transport-https "
 
