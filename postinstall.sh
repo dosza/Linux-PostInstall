@@ -476,7 +476,7 @@ applyConfigByDistroLinux(){
 	esac
 }
 isItToRunInInteractiveMode(){
-	interactive_regex='(\-\-interactive)'
+	local interactive_regex='(\-\-interactive)'
 	[[ $possibleInteractive = 0 ]] && [[ "${ARGV[*]}" =~ $interactive_regex ]]
 }
 
