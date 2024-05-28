@@ -24,7 +24,6 @@ FLAG_WEB_BROWSER=0
 PROCESSOR_ARCH=$(arch)
 PROGRAM_INSTALL=""
 ORACLE_REPO_VIRTUALBOX_VERSION=(7.0 6.1)
-GAMES="gweled gnome-mahjongg "
 MTP_SPP="libmtp-common mtp-tools libmtp-dev libmtp-runtime libmtp9 "
 SDL_LIBS="libsdl-ttf2.0-dev libsdl-sound1.2 libsdl-gfx1.2-dev libsdl-mixer1.2-dev libsdl-image1.2-dev "
 DEV_TOOLS="g++ mesa-utils "
@@ -327,7 +326,6 @@ runMenu(){
 	)
 
 	local -A install_list=(
-		['Jogos básicos']="--i-games"
 		['Java LTS']="--i-java"
 		['Suporte MTP']="--i-mtp_spp"
 		['Multimidia']="--i-multimedia"
@@ -363,7 +361,6 @@ usage(){
 
 		--i-mtp_spp		Instala bibliotecas MTP (Protocolo de transferencia de arquivos Android)
 		--i-multimedia		Instala Softwares de multimídia (VLC Player, Winff,Gimp,...)
-		--i-games		Instala o jogo gweled Gnome-mahjongg
 		--i-java		Instala Java LTS
 		--i-non-free		Instala softwares e codecs proprietários (rar,fontes: arial,times new,...)
 		--i-virtualbox		Instala e configura o Virtuabox
