@@ -253,31 +253,54 @@ configureDebianNonFreeFirmwareRepository(){
 	
 }
 
+
+isYes(){
+	read answer
+	[ "${answer,,}" = "s" ] || [ "${answer,,}" = "y" ]
+}
+
+markSoftwareClassItem(){
+	echo -en Deseja instalar "${VERDE}$class${NORMAL} s/n? "
+	! isYes && return 
+	mark_to_install+=("$install_code")
+}
+
 runMenu(){
 	
 	local answer
 	local mark_to_install=()
+	
+	local -A dev_tools_list=(
+		['JDK']="--jdk"
+		['Ferramentas do Android']='--i-android-dev-tools'
+		['Sublime Text']='--i-text=sublime'
+		['Kate Text Editor']='--i-text=kate'
+		['Suporte SDL']="--i-sdl_libs"
+	)
+
 	local -A install_list=(
 		['Jogos básicos']="--i-games"
 		['Java']="--java"
-		['JDK']="--jdk"
 		['Suporte MTP']="--i-mtp_spp"
-		['Suporte SDL']="--i-sdl_libs"
 		['Multimidia']="--i-multimedia"
-		['Ferramentas de desenvolvedor']="--i-dev"
 		['Virtualbox']='--i-virtualbox'
 		['Softwares proprietários']='--i-non-free'
-		['Sublime Text']='--i-text=sublime'
-		['Ferramentas do Android']='--i-android-dev-tools'
 		['4K Video Downloader plus']="--u-4k"
 	)
 
+	echo "Selecione as Ferramentas que deseja instalar"
 	arrayMap install_list install_code class '{
-		echo -en Deseja instalar "${VERDE}$class${NORMAL} s/n? "
-		read answer
-		[ "${answer,,}" != "s" ] && continue
-		mark_to_install+=("$install_code")
+		markSoftwareClassItem
 	}'
+
+	echo  -en Deseja instalar "${VERDE}$Ferramentas de desenvolvedor${NORMAL} s/n? " 
+	if isYes; then
+		mark_to_install+=("--i-dev")
+		arrayMap dev_tools_list install_code class '{
+			markSoftwareClassItem
+		}'
+	fi
+
 
 	setSoftwaresParaInstalar mark_to_install
 
@@ -285,6 +308,7 @@ runMenu(){
 
 setSoftwaresParaInstalar(){
 	! isVariabelDeclared $1 && return
+	
 	newPtr softwares_ref=$1
 
 	for software_class in "${softwares_ref[@]}";do
