@@ -6,13 +6,17 @@
 source /etc/os-release
 
 if [ -e "$PWD/common-shell.sh" ]; then
-	source "$PWD/common-shell.sh"
+	MODULES_PATH=$PWD
 elif [ -e "$(dirname $0)/common-shell.sh" ]; then
-	source "$(dirname $0)/common-shell.sh" 
+	MODULES_PATH="$(dirname $0)"
 fi
 
+source "$MODULES_PATH/common-shell.sh"
 declare  -r DEBIAN_SUPPORT_FIRMWARE_REPO=12
 JAVA_LTS_VERSION=(21 17 11)
+LINES_IFS="
+"
+CURRENT_IFS="$IFS"
 POSTINSTALL_VERSION='0.3.0'
 FLAG=$#
 WELCOME_POSTINSTALL_MSG="Linux Post Install to EndUser v${POSTINSTALL_VERSION}"
@@ -39,10 +43,16 @@ declare -A TEXT_EDITOR=(
 MULTIMEDIA="vlc language-pack-kde-pt kolourpaint gimp gimp-data-extras winff"
 NON_FREE="rar unrar p7zip-full p7zip-rar ttf-mscorefonts-installer "
 SYSTEM=" gparted dnsmasq-base bleachbit  apt-transport-https "
+
 ARGV=($@)
+
 UNSUPPORTED_JAVA_PPA=/etc/apt/sources.list.d/webupd8team-java.list
 VIRTUALBOX_VERSION=virtualbox
 PROGRAM_REMOVE='4kvideodownloader'
+
+LIGHT_BLUE=$'\e[1;36m'
+ITALIC=$'\e[1;3m'
+
 #still compatible older installations
 #set virtualbox from Oracle repo, if is installed
 getCurrentVirtualBoxInstalled(){
@@ -170,8 +180,6 @@ MakeSourcesListD(){
 basicInstall(){
 	applyConfigByDistroLinux
 	getCurrentDebianFrontend
-	echo "Serão instalados: ${VERDE}$PROGRAM_INSTALL${NORMAL}"
-	echo "Este script irá configurar seu computador para o uso"
 	AptDistUpgrade
 	AptInstall $COMMON_SHELL_MIN_DEPS $PROGRAM_INSTALL
 	echo "LINUX_MODIFICATIONS:$LINUX_MODIFICATIONS"
@@ -457,7 +465,11 @@ setModeSoftwaresSelection(){
 }
 
 main(){
+	local hello_message="$(<$MODULES_PATH/.hello-message.txt)"
+	
+	echo "${LIGHT_BLUE}$hello_message${ITALIC}v${POSTINSTALL_VERSION}${NORMAL}"
 	echo "Este script irá configurar seu Linux para uso"
+	
 	if [ "$UID" = "0" ]; then
 		setModeSoftwaresSelection
 		basicInstall
