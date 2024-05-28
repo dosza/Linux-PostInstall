@@ -260,7 +260,7 @@ isYes(){
 }
 
 markSoftwareClassItem(){
-	echo -en Deseja instalar "${VERDE}$class${NORMAL} s/n? "
+	echo -en "Deseja instalar ${VERDE}$class${NORMAL} s/n? "
 	! isYes && return 
 	mark_to_install+=("$install_code")
 }
@@ -290,6 +290,7 @@ runMenu(){
 
 	echo "Selecione as Ferramentas que deseja instalar"
 	arrayMap install_list install_code class '{
+
 		markSoftwareClassItem
 	}'
 
