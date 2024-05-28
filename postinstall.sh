@@ -24,7 +24,7 @@ FLAG_WEB_BROWSER=0
 PROCESSOR_ARCH=$(arch)
 PROGRAM_INSTALL=""
 LINUX_VERSION=$(cat /etc/issue.net);
-ORACLE_REPO_VIRTUALBOX_VERSION='virtualbox-6.1'
+ORACLE_REPO_VIRTUALBOX_VERSION=(7.0 6.1)
 GAMES="gweled gnome-mahjongg "
 MTP_SPP="libmtp-common mtp-tools libmtp-dev libmtp-runtime libmtp9 "
 SDL_LIBS="libsdl-ttf2.0-dev libsdl-sound1.2 libsdl-gfx1.2-dev libsdl-mixer1.2-dev libsdl-image1.2-dev "
@@ -53,9 +53,13 @@ TEXT_STYLE="${LIGHT_BLUE}${ITALIC}"
 #still compatible older installations
 #set virtualbox from Oracle repo, if is installed
 getCurrentVirtualBoxInstalled(){
-	if CheckPackageDebIsInstalled $ORACLE_REPO_VIRTUALBOX_VERSION; then 
-		VIRTUALBOX_VERSION=$ORACLE_REPO_VIRTUALBOX_VERSION
-	fi
+	local oracle_deb_pack
+	arrayMap ORACLE_REPO_VIRTUALBOX_VERSION version '
+		oracle_deb_pack="virtualbox-${version}"
+		if CheckPackageDebIsInstalled $oracle_deb_pack ; then 
+			VIRTUALBOX_VERSION="$oracle_deb_pack"
+			return
+		fi'
 }
 installVirtualbox(){
 
