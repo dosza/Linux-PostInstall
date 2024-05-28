@@ -44,7 +44,7 @@ ARGV=($@)
 
 UNSUPPORTED_JAVA_PPA=/etc/apt/sources.list.d/webupd8team-java.list
 VIRTUALBOX_VERSION=virtualbox
-PROGRAM_REMOVE='4kvideodownloader'
+PROGRAM_REMOVE=('4kvideodownloader')
 
 LIGHT_BLUE=$'\e[1;36m'
 ITALIC=$'\e[1;3m'
@@ -174,16 +174,28 @@ MakeSourcesListD(){
 	ConfigureSourcesList apt_key_url_repository mirrors repositories
 }
 
+
+FilterProgramToRemove(){
+	local list_packages_to_remove=()
+	arrayFilter PROGRAM_REMOVE program list_packages_to_remove '{
+		getDebPackVersion "$program" &>/dev/null
+	}'
+
+	PROGRAM_REMOVE=("${list_packages_to_remove[@]}")
+}
+
+RunAptModifications(){
+	[ "$APT_MODIFICATIONS" != "" ] && AptInstall $APT_MODIFICATIONS;
+}
+
 basicInstall(){
 	applyConfigByDistroLinux
 	getCurrentDebianFrontend
 	AptDistUpgrade
-	AptInstall $COMMON_SHELL_MIN_DEPS $PROGRAM_INSTALL
-	echo "LINUX_MODIFICATIONS:$LINUX_MODIFICATIONS"
-	AptInstall $LINUX_MODIFICATIONS;
-	[ "$APT_MODIFICATIONS" != "" ] && AptInstall $APT_MODIFICATIONS;
-	AptInstall $WEB_BROWSER;
-	getDebPackVersion "$PROGRAM_REMOVE" &>/dev/null && AptRemove $PROGRAM_REMOVE
+	AptInstall $COMMON_SHELL_MIN_DEPS $PROGRAM_INSTALL $LINUX_MODIFICATIONS $WEB_BROWSER
+	RunAptModifications	
+	FilterProgramToRemove
+	AptRemove "$PROGRAM_REMOVE"
 	AptInstall "-f"
 }
 
