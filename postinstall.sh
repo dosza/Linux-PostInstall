@@ -159,7 +159,7 @@ install4KVideoDownloader(){
 }
 
 MakeSourcesListD(){
-	
+
 	local repositories=(
 		'/etc/apt/sources.list.d/google-chrome.list'
 		'/etc/apt/sources.list.d/sublime-text.list'
@@ -317,17 +317,18 @@ runMenu(){
 	local mark_to_install=()
 	
 	local -A dev_tools_list=(
-		['JDK LTS']="--jdk"
+		['JDK LTS']="--i-jdk"
 		['Ferramentas do Android']='--i-android-dev-tools'
 		['Sublime Text']='--i-text=sublime'
 		['Kate Text Editor']='--i-text=kate'
 		['Visual Studio Code']='--i-text=vscode'
 		['Suporte SDL']="--i-sdl_libs"
+		['Nodejs LTS']="--i-nodejs-lts"
 	)
 
 	local -A install_list=(
 		['Jogos básicos']="--i-games"
-		['Java LTS']="--java"
+		['Java LTS']="--i-java"
 		['Suporte MTP']="--i-mtp_spp"
 		['Multimidia']="--i-multimedia"
 		['Virtualbox']='--i-virtualbox'
@@ -357,20 +358,27 @@ usage(){
 
 	echo "Uso: sudo ./postinstall.sh ${LIGHT_BLUE}--[option]${DEFAULT} ou --i-text=${LIGHT_BLUE}[text-option]${DEFAULT}
 		--help,-h 		exibe esta ajuda
+		
+		--interactive		Executa instalação em modo interativo
+
 		--i-mtp_spp		Instala bibliotecas MTP (Protocolo de transferencia de arquivos Android)
-		--i-sdl_libs		Instala bibliotecas SDL (desenvolvedor)
 		--i-multimedia		Instala Softwares de multimídia (VLC Player, Winff,Gimp,...)
 		--i-games		Instala o jogo gweled Gnome-mahjongg
-		--i-dev			Instala compilador C++ e mesa-utils
+		--i-java		Instala Java LTS
 		--i-non-free		Instala softwares e codecs proprietários (rar,fontes: arial,times new,...)
 		--i-virtualbox		Instala e configura o Virtuabox
-		--i-text=sublime 	Instala o Sublime Text (desenvolvedor)
-		--i-text=kate 		Instala o editor Kate (desenvolvedor)
-		--i-android-dev-tools	Instala Android Fast Boot e Android ADB
 		--u-4k			Instala/atualiza somente o 4kvideodownloaderplus
-		--java			Instala Java LTS
-		--jdk			Instala JDK LTS (desenvolvedor)
-		--interactive		Executa instalação em modo interativo
+				
+				${TEXT_STYLE}Ferramentas de desenvolvedor${DEFAULT}:
+
+		--i-dev			Instala compilador C++ e mesa-utils
+		--i-sdl_libs		Instala bibliotecas SDL (desenvolvedor)
+		--i-text=sublime 	Instala o Sublime Text 
+		--i-text=kate 		Instala o editor Kate 
+		--i-text=vscode 	Instala Visual Studio Code 
+		--i-android-dev-tools	Instala Android Fast Boot e Android ADB
+		--i-nodejs-lts		Instala o NodeJS LTS
+		--i-jdk			Instala JDK LTS 
 
 	"
 }
@@ -403,9 +411,7 @@ setSoftwaresToInstall(){
 			"--i-virtualbox")
 				installVirtualbox
 			;;
-			"--i-dev")
-				PROGRAM_INSTALL+=${DEV_TOOLS}
-			;;
+			
 			"--i-non-free")
 				PROGRAM_INSTALL+=$NON_FREE
 			;;
@@ -415,8 +421,12 @@ setSoftwaresToInstall(){
 					exit
 				fi
 			;;
-			"--java")
+			"--i-java")
 				setMajorJavaLtsSupported "jre"
+			;;
+
+			"--i-dev")
+				PROGRAM_INSTALL+=${DEV_TOOLS}
 			;;
 
 			"--i-text="*)
@@ -432,7 +442,7 @@ setSoftwaresToInstall(){
 				DEV_TOOLS+=" $ANDROID_DEV_TOOLS"
 			;;
 
-			"--jdk")
+			"--i-jdk")
 				setMajorJavaLtsSupported "jdk"
 			;;
 			"--i-nodejs")
