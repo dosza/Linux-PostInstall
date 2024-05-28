@@ -314,7 +314,7 @@ runMenu(){
 	if isYes; then
 		mark_to_install+=("--i-dev")
 		arrayMap dev_tools_list install_code class '{
-			echo -en " "
+			echo -en "\t"
 			markSoftwareClassItem
 		}'
 	fi
