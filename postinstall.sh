@@ -325,6 +325,27 @@ runMenu(){
 
 }
 
+usage(){
+
+	echo "Uso: sudo ./postinstall.sh ${LIGHT_BLUE}--[option]${NORMAL} ou --i-text=${LIGHT_BLUE}[text-option]${NORMAL}
+		--help,h 		exibe esta ajuda
+		--i-mtp_spp		Instala bibliotecas MTP (Protocolo de transferencia de arquivos Android)
+		--i-sdl_libs		Instala bibliotecas SDL (desenvolvedor)
+		--i-multimedia		Instala Softwares de multimídia (VLC Player, Winff,Gimp,...)
+		--i-games		Instala o jogo gweled Gnome-mahjongg
+		--i-dev			Instala compilador C++ e mesa-utils
+		--i-non-free		Instala softwares e codecs proprietários
+		--i-virtualbox		Instala e configura o Virtuabox
+		--i-text=sublime 	Instala o Sublime Text (desenvolvedor)
+		--i-text=kate 		Instala o editor Kate (desenvolvedor)
+		--i-android-dev-tools	Instala Android Fast Boot e Android ADB
+		--u-4k			Instala/atualiza somente o 4kvideodownloaderplus
+		--java			Instala Java LTS
+		--jdk			Instala JDK LTS (desenvolvedor)
+		--interactive		Executa instalação em modo interativo
+
+	"
+}
 setSoftwaresToInstall(){
 	! isVariabelDeclared $1 && return
 	
@@ -332,9 +353,13 @@ setSoftwaresToInstall(){
 
 	echo ""
 
-	for software_class in "${softwares_ref[@]}";do
+	for option in "${softwares_ref[@]}";do
 
-		case "$software_class" in
+		case "$option" in
+			"--help"| '-h')
+				usage
+				exit
+			;;
 			"--i-games")
 				PROGRAM_INSTALL+=$GAMES
 			;;
@@ -367,7 +392,7 @@ setSoftwaresToInstall(){
 			;;
 
 			"--i-text="*)
-				text_key="${software_class}"
+				text_key="${option}"
 				text_key="${text_key//--i-text=/}"
 				text_editor="${TEXT_EDITOR[$text_key]}"
 				echo "Selecionando editor: ${TEXT_STYLE}$text_editor${NORMAL}"
@@ -381,6 +406,11 @@ setSoftwaresToInstall(){
 
 			"--jdk")
 				setMajorJavaLtsSupported "jdk"
+			;;
+			*)
+				echo "Error: option invalid!"
+				usage
+				exit 1
 			;;
 		esac
 	done
@@ -474,7 +504,7 @@ setModeSoftwaresSelection(){
 
 main(){
 	local hello_message="$(<$MODULES_PATH/.hello-message.txt)"
-	
+	local help_regex='(\-\-help|\-h)'
 	echo "${LIGHT_BLUE}$hello_message${ITALIC}v${POSTINSTALL_VERSION}${NORMAL}"
 	echo "Este script irá configurar seu Linux para uso"
 	
@@ -482,7 +512,11 @@ main(){
 		setModeSoftwaresSelection
 		basicInstall
 	else
-	
+
+		if [[ "${ARGV[*]}" =~ $help_regex ]];then
+			usage
+			return
+		fi
 		printf "Sinto muito, você não tem permissões administrativas para executar este script!\n
 		\rTente novamente executando este comando:\nsudo postinstall.sh\n"
 		sleep 1
