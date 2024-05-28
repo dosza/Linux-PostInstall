@@ -315,7 +315,7 @@ setSoftwaresToInstall(){
 	newPtr softwares_ref=$1
 
 	echo ""
-	
+
 	for software_class in "${softwares_ref[@]}";do
 
 		case "$software_class" in
@@ -383,6 +383,7 @@ setActionsByLinuxArch(){
 }
 
 configureDebian(){
+	
 	DEBIAN_VERSION="${VERSION_CODENAME}"
 	LINUX_MODIFICATIONS="onboard gnome-packagekit libreoffice-l10n-pt-br myspell-pt-br epub-utils kinit kio kio-extras kded5"
 	APT_EXTRA_KEYS=(https://dl.winehq.org/wine-builds/winehq.key)
@@ -429,26 +430,39 @@ applyConfigByDistroLinux(){
 		;;
 	esac
 }
-#verifica se o usuário tem poderes administrativos	
-if [ "$UID" = "0" ]; then
-	
-	if [ $# = 0 ]; then
-		PROGRAM_INSTALL=${MTP_SPP}${SDL_LIBS}${MULTIMEDIA}${SYSTEM}
-	else
-		PROGRAM_INSTALL+=$SYSTEM
-		interactive_regex='(\-\-interactive)'
-		if [[ ! "$@" =~ $interactive_regex ]]; then
-			ARGV=("${ARGV[@]//--interactive/}")
-			setSoftwaresToInstall "ARGV"
-		else
-			runMenu
-		fi
+isItToRunInInteractiveMode(){
+	interactive_regex='(\-\-interactive)'
+	[[ $possibleInteractive = 0 ]] && [[ "${ARGV[*]}" =~ $interactive_regex ]]
+}
 
+setBasicProgramInstall(){
+	if [ ${#ARGV[@]} = 0 ]; then 
+		PROGRAM_INSTALL=${MTP_SPP}${SDL_LIBS}${MULTIMEDIA}${SYSTEM}
+		return
 	fi
+	PROGRAM_INSTALL+=$SYSTEM
+	possibleInteractive=0
+}
+
+setModeSoftwaresSelection(){
+	local possibleInteractive=1
+
+	setBasicProgramInstall
+	if isItToRunInInteractiveMode; then 
+		ARGV=("${ARGV[@]//--interactive/}")
+		runMenu
+	else
+		setSoftwaresToInstall "ARGV"
+	fi
+}
+
+main(){
+	echo "Este script irá configurar seu Linux para uso"
+	if [ "$UID" = "0" ]; then
+		setModeSoftwaresSelection
 		basicInstall
 	else
-		#O comando printf é usado para fazer imprimir mensagem formatada funciona de maneira semelhante ao printf da
-		#linguagem C
+	
 		printf "Sinto muito, você não tem permissões administrativas para executar este script!\n
 		\rTente novamente executando este comando:\nsudo postinstall.sh\n"
 		sleep 1
@@ -456,4 +470,8 @@ if [ "$UID" = "0" ]; then
 		read -n 1 exit_key
 		exit 1 
 	fi
+}
+
+main
+
 
