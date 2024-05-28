@@ -178,7 +178,12 @@ MakeSourcesListD(){
 		'https://packages.microsoft.com/keys/microsoft.asc'
 	)
 
+	local setup_scripts=(
+		"https://deb.nodesource.com/setup_lts.x"
+	)
+
 	ConfigureSourcesList apt_key_url_repository mirrors repositories
+	ConfigureSourcesListByScript setup_scripts
 }
 
 
@@ -429,6 +434,9 @@ setSoftwaresToInstall(){
 
 			"--jdk")
 				setMajorJavaLtsSupported "jdk"
+			;;
+			"--i-nodejs")
+				DEV_TOOLS+=" nodejs"
 			;;
 			*)
 				echo "Error: option invalid!"
