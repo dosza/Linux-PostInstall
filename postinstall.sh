@@ -326,13 +326,13 @@ runMenu(){
 usage(){
 
 	echo "Uso: sudo ./postinstall.sh ${LIGHT_BLUE}--[option]${NORMAL} ou --i-text=${LIGHT_BLUE}[text-option]${NORMAL}
-		--help,h 		exibe esta ajuda
+		--help,-h 		exibe esta ajuda
 		--i-mtp_spp		Instala bibliotecas MTP (Protocolo de transferencia de arquivos Android)
 		--i-sdl_libs		Instala bibliotecas SDL (desenvolvedor)
 		--i-multimedia		Instala Softwares de multimídia (VLC Player, Winff,Gimp,...)
 		--i-games		Instala o jogo gweled Gnome-mahjongg
 		--i-dev			Instala compilador C++ e mesa-utils
-		--i-non-free		Instala softwares e codecs proprietários
+		--i-non-free		Instala softwares e codecs proprietários (rar,fontes: arial,times new,...)
 		--i-virtualbox		Instala e configura o Virtuabox
 		--i-text=sublime 	Instala o Sublime Text (desenvolvedor)
 		--i-text=kate 		Instala o editor Kate (desenvolvedor)
