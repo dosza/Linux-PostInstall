@@ -442,7 +442,7 @@ setSoftwaresToInstall(){
 			"--i-jdk")
 				setMajorJavaLtsSupported "jdk"
 			;;
-			"--i-nodejs")
+			"--i-nodejs-lts")
 				DEV_TOOLS+=" nodejs"
 			;;
 			*)
