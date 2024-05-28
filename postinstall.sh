@@ -33,6 +33,7 @@ ANDROID_DEV_TOOLS="android-tools-fastboot android-tools-adb"
 declare -A TEXT_EDITOR=(
 	['sublime']="sublime-text"
 	['kate']="kate"
+	['vscode']='code'
 )
 
 MULTIMEDIA="vlc language-pack-kde-pt kolourpaint gimp gimp-data-extras winff "
@@ -161,17 +162,20 @@ MakeSourcesListD(){
 	
 	local repositories=(
 		'/etc/apt/sources.list.d/google-chrome.list'
-		'/etc/apt/sources.list.d/sublime-text.list'  
+		'/etc/apt/sources.list.d/sublime-text.list'
+		"/etc/apt/sources.list.d/vscode.list"
 	)
 
 	local mirrors=(
 		'deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main' 
 		'deb https://download.sublimetext.com/ apt/stable/' 
+		"deb [arch=amd64 signed-by=/etc/apt/keyrings/packages.microsoft.gpg]  https://packages.microsoft.com/repos/code stable main"
 	)
 
 	local apt_key_url_repository=(
 		"https://download.sublimetext.com/sublimehq-pub.gpg"
 		"https://dl-ssl.google.com/linux/linux_signing_key.pub"
+		'https://packages.microsoft.com/keys/microsoft.asc'
 	)
 
 	ConfigureSourcesList apt_key_url_repository mirrors repositories
@@ -312,6 +316,7 @@ runMenu(){
 		['Ferramentas do Android']='--i-android-dev-tools'
 		['Sublime Text']='--i-text=sublime'
 		['Kate Text Editor']='--i-text=kate'
+		['Visual Studio Code']='i-text=vscode'
 		['Suporte SDL']="--i-sdl_libs"
 	)
 
