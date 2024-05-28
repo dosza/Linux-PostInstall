@@ -271,7 +271,7 @@ runMenu(){
 	local mark_to_install=()
 	
 	local -A dev_tools_list=(
-		['JDK']="--jdk"
+		['JDK LTS']="--jdk"
 		['Ferramentas do Android']='--i-android-dev-tools'
 		['Sublime Text']='--i-text=sublime'
 		['Kate Text Editor']='--i-text=kate'
@@ -280,21 +280,21 @@ runMenu(){
 
 	local -A install_list=(
 		['Jogos básicos']="--i-games"
-		['Java']="--java"
+		['Java LTS']="--java"
 		['Suporte MTP']="--i-mtp_spp"
 		['Multimidia']="--i-multimedia"
 		['Virtualbox']='--i-virtualbox'
-		['Softwares proprietários']='--i-non-free'
+		['Softwares proprietários e codecs proprietários']='--i-non-free'
 		['4K Video Downloader plus']="--u-4k"
 	)
 
-	echo "Selecione as Ferramentas que deseja instalar"
+	echo "Selecione o grupo de Ferramentas que deseja instalar"
 	arrayMap install_list install_code class '{
 
 		markSoftwareClassItem
 	}'
 
-	echo  -en Deseja instalar "${VERDE}$Ferramentas de desenvolvedor${NORMAL} s/n? " 
+	echo  -en "Deseja instalar ${VERDE}Ferramentas de desenvolvedor${NORMAL} s/n? " 
 	if isYes; then
 		mark_to_install+=("--i-dev")
 		arrayMap dev_tools_list install_code class '{
