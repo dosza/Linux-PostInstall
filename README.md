@@ -28,6 +28,7 @@ Oque a ferramenta instala?
 
 Como usar?
 ---
+
 Obs: Exige poderes de ***root***!
 ```console
 user@pc:~$ #Sintaxe: sudo bash posinstall.sh [args]
@@ -70,13 +71,3 @@ Repositórios comuns adicionados
 
 +	Google Chrome
 +	Sublime-text
-
-
-<p>
-	<strong>Obs:</strong>  Está em desenvolvimento os modos:
-	<ul>
-		<li><em>free</em>  (somente software livre)!</li>
-		<li><em>stable</em> (somente software estáveis)!</li>
-		<li><em>dev</em> (somente modo desenvolvedor)! </li>
-	</ul>
-</p>
