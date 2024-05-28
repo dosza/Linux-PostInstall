@@ -307,7 +307,7 @@ runMenu(){
 		['4K Video Downloader plus']="--u-4k"
 	)
 
-	echo "Selecione o grupo de Ferramentas que deseja instalar"
+	echo "Selecione o grupo de ${TEXT_STYLE}Ferramentas${NORMAL} que deseja instalar"
 	arrayMap install_list install_code class 'markSoftwareClassItem'
 
 	echo  -en " ${TEXT_STYLE}Ferramentas de desenvolvedor${NORMAL} ${ITALIC}s/n?${NORMAL} " 
