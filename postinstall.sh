@@ -196,11 +196,10 @@ basicInstall(){
 	applyConfigByDistroLinux
 	getCurrentDebianFrontend
 	AptDistUpgrade
-	AptInstall $COMMON_SHELL_MIN_DEPS $PROGRAM_INSTALL $LINUX_MODIFICATIONS $WEB_BROWSER
+	AptInstall $COMMON_SHELL_MIN_DEPS $PROGRAM_INSTALL $LINUX_MODIFICATIONS $WEB_BROWSER -f
 	RunAptModifications	
 	FilterProgramToRemove
 	AptRemove "$PROGRAM_REMOVE"
-	AptInstall "-f"
 }
 
 DebianExtraActions(){
