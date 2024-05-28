@@ -13,13 +13,9 @@ fi
 
 source "$MODULES_PATH/common-shell.sh"
 declare  -r DEBIAN_SUPPORT_FIRMWARE_REPO=12
+
 JAVA_LTS_VERSION=(21 17 11)
-LINES_IFS="
-"
-CURRENT_IFS="$IFS"
 POSTINSTALL_VERSION='0.3.0'
-FLAG=$#
-WELCOME_POSTINSTALL_MSG="Linux Post Install to EndUser v${POSTINSTALL_VERSION}"
 APT_LIST="/etc/apt/sources.list"
 APT_MODIFICATIONS=""
 LINUX_MODIFICATIONS=""
@@ -187,9 +183,7 @@ basicInstall(){
 	AptInstall $LINUX_MODIFICATIONS;
 	[ "$APT_MODIFICATIONS" != "" ] && AptInstall $APT_MODIFICATIONS;
 	AptInstall $WEB_BROWSER;
-	AptRemove $PROGRAM_REMOVE
-	echo 'installing 4k '
-	install4KVideoDownloader
+	getDebPackVersion "$PROGRAM_REMOVE" &>/dev/null && AptRemove $PROGRAM_REMOVE
 	AptInstall "-f"
 }
 
