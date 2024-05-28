@@ -327,7 +327,7 @@ runMenu(){
 
 	local -A install_list=(
 		['Java LTS']="--i-java"
-		['Suporte MTP']="--i-mtp_spp"
+		['Suporte MTP']="--i-mtp-spp"
 		['Multimidia']="--i-multimedia"
 		['Virtualbox']='--i-virtualbox'
 		['Softwares proprietários e fontes Microsoft TrueType ']='--i-non-free'
@@ -359,7 +359,7 @@ usage(){
 		
 		--interactive		Executa instalação em modo interativo
 
-		--i-mtp_spp		Instala bibliotecas MTP (Protocolo de transferencia de arquivos Android)
+		--i-mtp-spp		Instala bibliotecas MTP (Protocolo de transferencia de arquivos Android)
 		--i-multimedia		Instala Softwares de multimídia (VLC Player, Winff,Gimp,...)
 		--i-java		Instala Java LTS
 		--i-non-free		Instala softwares e codecs proprietários (rar,fontes: arial,times new,...)
@@ -396,7 +396,7 @@ setSoftwaresToInstall(){
 			"--i-games")
 				PROGRAM_INSTALL+=$GAMES
 			;;
-			"--i-mtp_spp")
+			"--i-mtp-spp")
 				PROGRAM_INSTALL+=$MTP_SPP
 			;;
 			"--i-sdl-libs")
