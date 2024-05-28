@@ -301,7 +301,7 @@ runMenu(){
 		['Suporte MTP']="--i-mtp_spp"
 		['Multimidia']="--i-multimedia"
 		['Virtualbox']='--i-virtualbox'
-		['Softwares proprietários e codecs proprietários']='--i-non-free'
+		['Softwares proprietários e fontes Microsoft TrueType ']='--i-non-free'
 		['4K Video Downloader plus']="--u-4k"
 	)
 
