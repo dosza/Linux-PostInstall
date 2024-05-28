@@ -5,13 +5,13 @@
 #--------------------------------------------------------Variaveis --------------------------------------------------
 source /etc/os-release
 
-if [ -e "$PWD/common-shell.sh" ]; then
+if [ -e "$PWD/ext-bash" ]; then
 	MODULES_PATH=$PWD
-elif [ -e "$(dirname $0)/common-shell.sh" ]; then
+elif [ -e "$(dirname $0)/ext-bash" ]; then
 	MODULES_PATH="$(dirname $0)"
 fi
 
-source "$MODULES_PATH/common-shell.sh"
+source "$MODULES_PATH/ext-bash/extended-bash.sh"
 declare  -r DEBIAN_SUPPORT_FIRMWARE_REPO=12
 
 JAVA_LTS_VERSION=(21 17 11)
@@ -191,6 +191,26 @@ RunAptModifications(){
 	[ "$APT_MODIFICATIONS" != "" ] && AptInstall $APT_MODIFICATIONS;
 }
 
+AptDistUpgrade(){
+	local apt_opts=(-y --allow-unauthenticated)
+	local apt_opts_err=(--fix-missing)
+	
+	waitAptDpkg
+	apt-get update
+	waitAptDpkg
+	
+	if ! apt-get dist-upgrade ${apt_opts[*]}; then 
+		waitAptDpkg
+		apt-get dist-upgrade ${apt_opts[*]} ${apt_opts_err[*]}
+		WARM_ERROR_NETWORK_AND_EXIT
+	fi
+
+}
+
+AptRemove(){
+	apt-get remove $*
+}
+
 basicInstall(){
 	applyConfigByDistroLinux
 	getCurrentDebianFrontend
@@ -198,7 +218,7 @@ basicInstall(){
 	AptInstall $COMMON_SHELL_MIN_DEPS $PROGRAM_INSTALL $LINUX_MODIFICATIONS $WEB_BROWSER -f
 	RunAptModifications	
 	FilterProgramToRemove
-	AptRemove "$PROGRAM_REMOVE"
+	AptRemove ${PROGRAM_REMOVE[*]}
 }
 
 DebianExtraActions(){
@@ -345,7 +365,7 @@ usage(){
 	"
 }
 setSoftwaresToInstall(){
-	! isVariabelDeclared $1 && return
+	! isVariableDeclared $1 && return
 	
 	newPtr softwares_ref=$1
 
