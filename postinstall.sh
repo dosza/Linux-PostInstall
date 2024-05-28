@@ -279,7 +279,7 @@ isYes(){
 }
 
 markSoftwareClassItem(){
-	echo -en "Deseja instalar ${TEXT_STYLE}$class${NORMAL} ${ITALIC}s/n?${NORMAL} "
+	echo -en " ${TEXT_STYLE}$class${NORMAL} ${ITALIC}s/n?${NORMAL} "
 	! isYes && return 
 	mark_to_install+=("$install_code")
 }
@@ -310,7 +310,7 @@ runMenu(){
 	echo "Selecione o grupo de Ferramentas que deseja instalar"
 	arrayMap install_list install_code class 'markSoftwareClassItem'
 
-	echo  -en "Deseja instalar ${TEXT_STYLE}Ferramentas de desenvolvedor${NORMAL} ${ITALIC}s/n?${NORMAL} " 
+	echo  -en " ${TEXT_STYLE}Ferramentas de desenvolvedor${NORMAL} ${ITALIC}s/n?${NORMAL} " 
 	if isYes; then
 		mark_to_install+=("--i-dev")
 		arrayMap dev_tools_list install_code class '{
