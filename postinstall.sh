@@ -316,7 +316,7 @@ runMenu(){
 		['Ferramentas do Android']='--i-android-dev-tools'
 		['Sublime Text']='--i-text=sublime'
 		['Kate Text Editor']='--i-text=kate'
-		['Visual Studio Code']='i-text=vscode'
+		['Visual Studio Code']='--i-text=vscode'
 		['Suporte SDL']="--i-sdl_libs"
 	)
 
