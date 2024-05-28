@@ -249,7 +249,7 @@ setMajorJavaLtsSupported(){
 		
 		java_deb="openjdk-${java_version}-${java_type}"
 		if getDebPackVersion  "$java_deb" &>/dev/null; then
-			echo "Selecionando: ${TEXT_STYLE}Java ${java_type^^} $java_version LTS${NORMAL}"
+			echo "Selecionando: ${TEXT_STYLE}Java ${java_type^^} $java_version LTS${DEFAULT}"
 			LINUX_MODIFICATIONS+=" $java_deb"
 			return
 		fi
@@ -277,7 +277,7 @@ isYes(){
 }
 
 markSoftwareClassItem(){
-	echo -en " ${TEXT_STYLE}$class${NORMAL} ${ITALIC}s/n?${NORMAL} "
+	echo -en " ${TEXT_STYLE}$class${DEFAULT} ${ITALIC}s/n?${DEFAULT} "
 	! isYes && return 
 	mark_to_install+=("$install_code")
 }
@@ -305,10 +305,10 @@ runMenu(){
 		['4K Video Downloader plus']="--u-4k"
 	)
 
-	echo "Selecione o grupo de ${TEXT_STYLE}Ferramentas${NORMAL} que deseja instalar"
+	echo "Selecione o grupo de ${TEXT_STYLE}Ferramentas${DEFAULT} que deseja instalar"
 	arrayMap install_list install_code class 'markSoftwareClassItem'
 
-	echo  -en " ${TEXT_STYLE}Ferramentas de desenvolvedor${NORMAL} ${ITALIC}s/n?${NORMAL} " 
+	echo  -en " ${TEXT_STYLE}Ferramentas de desenvolvedor${DEFAULT} ${ITALIC}s/n?${DEFAULT} " 
 	if isYes; then
 		mark_to_install+=("--i-dev")
 		arrayMap dev_tools_list install_code class '{
@@ -325,7 +325,7 @@ runMenu(){
 
 usage(){
 
-	echo "Uso: sudo ./postinstall.sh ${LIGHT_BLUE}--[option]${NORMAL} ou --i-text=${LIGHT_BLUE}[text-option]${NORMAL}
+	echo "Uso: sudo ./postinstall.sh ${LIGHT_BLUE}--[option]${DEFAULT} ou --i-text=${LIGHT_BLUE}[text-option]${DEFAULT}
 		--help,-h 		exibe esta ajuda
 		--i-mtp_spp		Instala bibliotecas MTP (Protocolo de transferencia de arquivos Android)
 		--i-sdl_libs		Instala bibliotecas SDL (desenvolvedor)
@@ -393,12 +393,12 @@ setSoftwaresToInstall(){
 				text_key="${option}"
 				text_key="${text_key//--i-text=/}"
 				text_editor="${TEXT_EDITOR[$text_key]}"
-				echo "Selecionando editor: ${TEXT_STYLE}$text_editor${NORMAL}"
+				echo "Selecionando editor: ${TEXT_STYLE}$text_editor${DEFAULT}"
 				DEV_TOOLS+=" $text_editor"
 			;;
 
 			"--i-android-dev-tools")
-				echo "Selecionando: ${TEXT_STYLE}Android Dev tools${NORMAL}"
+				echo "Selecionando: ${TEXT_STYLE}Android Dev tools${DEFAULT}"
 				DEV_TOOLS+=" $ANDROID_DEV_TOOLS"
 			;;
 
@@ -503,7 +503,7 @@ setModeSoftwaresSelection(){
 main(){
 	local hello_message="$(<$MODULES_PATH/.hello-message.txt)"
 	local help_regex='(\-\-help|\-h)'
-	echo "${LIGHT_BLUE}$hello_message${ITALIC}v${POSTINSTALL_VERSION}${NORMAL}"
+	echo "${LIGHT_BLUE}$hello_message${ITALIC}v${POSTINSTALL_VERSION}${DEFAULT}"
 	echo "Este script irá configurar seu Linux para uso"
 	
 	if [ "$UID" = "0" ]; then
