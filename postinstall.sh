@@ -298,20 +298,24 @@ runMenu(){
 	if isYes; then
 		mark_to_install+=("--i-dev")
 		arrayMap dev_tools_list install_code class '{
+			echo -en " "
 			markSoftwareClassItem
 		}'
 	fi
 
 
-	setSoftwaresParaInstalar mark_to_install
+	setSoftwaresToInstall mark_to_install
+
 
 }
 
-setSoftwaresParaInstalar(){
+setSoftwaresToInstall(){
 	! isVariabelDeclared $1 && return
 	
 	newPtr softwares_ref=$1
 
+	echo ""
+	
 	for software_class in "${softwares_ref[@]}";do
 
 		case "$software_class" in
@@ -435,7 +439,7 @@ if [ "$UID" = "0" ]; then
 		interactive_regex='(\-\-interactive)'
 		if [[ ! "$@" =~ $interactive_regex ]]; then
 			ARGV=("${ARGV[@]//--interactive/}")
-			setSoftwaresParaInstalar "ARGV"
+			setSoftwaresToInstall "ARGV"
 		else
 			runMenu
 		fi
