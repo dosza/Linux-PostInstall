@@ -52,6 +52,7 @@ PROGRAM_REMOVE='4kvideodownloader'
 
 LIGHT_BLUE=$'\e[1;36m'
 ITALIC=$'\e[1;3m'
+TEXT_STYLE="${LIGHT_BLUE}${ITALIC}"
 
 #still compatible older installations
 #set virtualbox from Oracle repo, if is installed
@@ -240,7 +241,7 @@ setMajorJavaLtsSupported(){
 		
 		java_deb="openjdk-${java_version}-${java_type}"
 		if getDebPackVersion  "$java_deb" &>/dev/null; then
-			echo "Selecionando: ${VERDE}Java ${java_type^^} LTS $java_version${NORMAL}"
+			echo "Selecionando: ${TEXT_STYLE}Java ${java_type^^} $java_version LTS${NORMAL}"
 			LINUX_MODIFICATIONS+=" $java_deb"
 			return
 		fi
@@ -268,7 +269,7 @@ isYes(){
 }
 
 markSoftwareClassItem(){
-	echo -en "Deseja instalar ${LIGHT_BLUE}${ITALIC}$class${NORMAL} ${ITALIC}s/n?${NORMAL} "
+	echo -en "Deseja instalar ${TEXT_STYLE}$class${NORMAL} ${ITALIC}s/n?${NORMAL} "
 	! isYes && return 
 	mark_to_install+=("$install_code")
 }
@@ -297,12 +298,9 @@ runMenu(){
 	)
 
 	echo "Selecione o grupo de Ferramentas que deseja instalar"
-	arrayMap install_list install_code class '{
+	arrayMap install_list install_code class 'markSoftwareClassItem'
 
-		markSoftwareClassItem
-	}'
-
-	echo  -en "Deseja instalar ${LIGHT_BLUE}${ITALIC}Ferramentas de desenvolvedor${NORMAL} ${ITALIC}s/n?${NORMAL} " 
+	echo  -en "Deseja instalar ${TEXT_STYLE}Ferramentas de desenvolvedor${NORMAL} ${ITALIC}s/n?${NORMAL} " 
 	if isYes; then
 		mark_to_install+=("--i-dev")
 		arrayMap dev_tools_list install_code class '{
@@ -362,12 +360,12 @@ setSoftwaresToInstall(){
 				text_key="${software_class}"
 				text_key="${text_key//--i-text=/}"
 				text_editor="${TEXT_EDITOR[$text_key]}"
-				echo "Selecionando editor: ${VERDE}$text_editor${NORMAL}"
+				echo "Selecionando editor: ${TEXT_STYLE}$text_editor${NORMAL}"
 				DEV_TOOLS+=" $text_editor"
 			;;
 
 			"--i-android-dev-tools")
-				echo "Selecionando: ${VERDE}Android Dev tools${NORMAL}"
+				echo "Selecionando: ${TEXT_STYLE}Android Dev tools${NORMAL}"
 				DEV_TOOLS+=" $ANDROID_DEV_TOOLS"
 			;;
 
