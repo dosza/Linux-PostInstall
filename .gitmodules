@@ -1,0 +1,3 @@
+[submodule "ext-bash"]
+	path = ext-bash
+	url = https://github.com/dosza/ext-bash
