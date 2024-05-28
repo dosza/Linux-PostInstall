@@ -321,7 +321,7 @@ runMenu(){
 		['Sublime Text']='--i-text=sublime'
 		['Kate Text Editor']='--i-text=kate'
 		['Visual Studio Code']='--i-text=vscode'
-		['Suporte SDL']="--i-sdl_libs"
+		['bibliotecas SDL']="--i-sdl-libs"
 		['Nodejs LTS']="--i-nodejs-lts"
 	)
 
@@ -369,7 +369,7 @@ usage(){
 				${TEXT_STYLE}Ferramentas de desenvolvedor${DEFAULT}:
 
 		--i-dev			Instala compilador C++ e mesa-utils
-		--i-sdl_libs		Instala bibliotecas SDL (desenvolvedor)
+		--i-sdl-libs		Instala bibliotecas SDL
 		--i-text=sublime 	Instala o Sublime Text 
 		--i-text=kate 		Instala o editor Kate 
 		--i-text=vscode 	Instala Visual Studio Code 
@@ -399,7 +399,7 @@ setSoftwaresToInstall(){
 			"--i-mtp_spp")
 				PROGRAM_INSTALL+=$MTP_SPP
 			;;
-			"--i-sdl_libs")
+			"--i-sdl-libs")
 				PROGRAM_INSTALL+=$SDL_LIBS
 			;;
 			"--i-multimedia")
