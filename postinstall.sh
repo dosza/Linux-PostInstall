@@ -23,7 +23,6 @@ WEB_BROWSER="google-chrome-stable"
 FLAG_WEB_BROWSER=0
 PROCESSOR_ARCH=$(arch)
 PROGRAM_INSTALL=""
-LINUX_VERSION=$(cat /etc/issue.net);
 ORACLE_REPO_VIRTUALBOX_VERSION=(7.0 6.1)
 GAMES="gweled gnome-mahjongg "
 MTP_SPP="libmtp-common mtp-tools libmtp-dev libmtp-runtime libmtp9 "
