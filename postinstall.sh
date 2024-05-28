@@ -31,7 +31,6 @@ ANDROID_DEV_TOOLS="android-tools-fastboot android-tools-adb"
 
 declare -A TEXT_EDITOR=(
 	['sublime']="sublime-text"
-	['kate']="kate"
 	['vscode']='code'
 )
 
@@ -319,7 +318,6 @@ runMenu(){
 		['JDK LTS']="--i-jdk"
 		['Ferramentas do Android']='--i-android-dev-tools'
 		['Sublime Text']='--i-text=sublime'
-		['Kate Text Editor']='--i-text=kate'
 		['Visual Studio Code']='--i-text=vscode'
 		['bibliotecas SDL']="--i-sdl-libs"
 		['Nodejs LTS']="--i-nodejs-lts"
@@ -371,7 +369,6 @@ usage(){
 		--i-dev			Instala compilador C++ e mesa-utils
 		--i-sdl-libs		Instala bibliotecas SDL
 		--i-text=sublime 	Instala o Sublime Text 
-		--i-text=kate 		Instala o editor Kate 
 		--i-text=vscode 	Instala Visual Studio Code 
 		--i-android-dev-tools	Instala Android Fast Boot e Android ADB
 		--i-nodejs-lts		Instala o NodeJS LTS
