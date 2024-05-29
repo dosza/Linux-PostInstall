@@ -26,7 +26,7 @@ PROGRAM_INSTALL=""
 ORACLE_REPO_VIRTUALBOX_VERSION=(7.0 6.1)
 MTP_SPP="libmtp-common mtp-tools libmtp-dev libmtp-runtime libmtp9 "
 SDL_LIBS="libsdl-ttf2.0-dev libsdl-sound1.2 libsdl-gfx1.2-dev libsdl-mixer1.2-dev libsdl-image1.2-dev "
-DEV_TOOLS="g++ mesa-utils "
+DEV_TOOLS=""
 ANDROID_DEV_TOOLS="android-tools-fastboot android-tools-adb"
 
 declare -A TEXT_EDITOR=(
@@ -218,11 +218,23 @@ AptRemove(){
 	apt-get remove $*
 }
 
+isDevToolsEnabled(){
+	[ "$dev_mode" = "1" ] || [ "$DEV_TOOLS" != "" ]
+}
+getListToInstall(){
+	PROGRAM_INSTALL="$COMMON_SHELL_MIN_DEPS $PROGRAM_INSTALL $LINUX_MODIFICATIONS $WEB_BROWSER"
+	if isDevToolsEnabled; then 
+		echo "Modo ${TEXT_STYLE} desenvolvedor${DEFAULT} ativado"
+		PROGRAM_INSTALL+=" $DEV_TOOLS"
+	fi
+}
+
 basicInstall(){
+	getListToInstall
 	applyConfigByDistroLinux
 	getCurrentDebianFrontend
 	AptDistUpgrade
-	AptInstall $COMMON_SHELL_MIN_DEPS $PROGRAM_INSTALL $LINUX_MODIFICATIONS $WEB_BROWSER -f
+	AptInstall $PROGRAM_INSTALL -f
 	RunAptModifications	
 	FilterProgramToRemove
 	AptRemove ${PROGRAM_REMOVE[*]}
@@ -275,7 +287,7 @@ setMajorJavaLtsSupported(){
 	for java_version in "${JAVA_LTS_VERSION[@]}";do
 		
 		java_deb="openjdk-${java_version}-${java_type}"
-		if getDebPackVersion  "$java_deb" &>/dev/null; then
+		if apt show  "$java_deb" &>/dev/null; then
 			echo "Selecionando: ${TEXT_STYLE}Java ${java_type^^} $java_version LTS${DEFAULT}"
 			LINUX_MODIFICATIONS+=" $java_deb"
 			return
@@ -321,6 +333,8 @@ runMenu(){
 		['Visual Studio Code']='--i-text=vscode'
 		['bibliotecas SDL']="--i-sdl-libs"
 		['Nodejs LTS']="--i-nodejs-lts"
+		['GCC']='--i-gcc'
+		['Clang LLVM Compiler']='--i-clang'
 	)
 
 	local -A install_list=(
@@ -334,6 +348,7 @@ runMenu(){
 
 	echo "Selecione o grupo de ${TEXT_STYLE}Ferramentas${DEFAULT} que deseja instalar"
 	echo ""
+
 	arrayMap install_list install_code class 'markSoftwareClassItem'
 
 	echo  -en " ${TEXT_STYLE}Ferramentas de desenvolvedor${DEFAULT} ${ITALIC}s/n?${DEFAULT} " 
@@ -363,17 +378,20 @@ usage(){
 		--i-java		Instala Java LTS
 		--i-non-free		Instala softwares e codecs proprietários (rar,fontes: arial,times new,...)
 		--i-virtualbox		Instala e configura o Virtuabox
-		--u-4k			Instala/atualiza somente o 4kvideodownloaderplus
+		--u-4k			Instala/atualiza somente o 4kvideodownloaderplus		
 				
 				${TEXT_STYLE}Ferramentas de desenvolvedor${DEFAULT}:
 
-		--i-dev			Instala compilador C++ e mesa-utils
+		--i-dev			Modo desenvolvedor
 		--i-sdl-libs		Instala bibliotecas SDL
 		--i-text=sublime 	Instala o Sublime Text 
 		--i-text=vscode 	Instala Visual Studio Code 
 		--i-android-dev-tools	Instala Android Fast Boot e Android ADB
 		--i-nodejs-lts		Instala o NodeJS LTS
-		--i-jdk			Instala JDK LTS 
+		--i-jdk			Instala JDK LTS
+		--i-gcc		Instala compilador GCC
+		--i-clang	Instala Compilador LLVM Clang
+
 
 	"
 }
@@ -416,20 +434,26 @@ setSoftwaresToInstall(){
 					exit
 				fi
 			;;
+
+			"--i-dev")
+				dev_mode=1
+			;;
 			"--i-java")
 				setMajorJavaLtsSupported "jre"
 			;;
 
-			"--i-dev")
-				PROGRAM_INSTALL+=${DEV_TOOLS}
-			;;
 
 			"--i-text="*)
+				
 				text_key="${option}"
 				text_key="${text_key//--i-text=/}"
 				text_editor="${TEXT_EDITOR[$text_key]}"
-				echo "Selecionando editor: ${TEXT_STYLE}$text_editor${DEFAULT}"
+				
+				[ "$text_editor" = "" ] && continue
+				
 				DEV_TOOLS+=" $text_editor"
+
+				echo "Selecionando editor: ${TEXT_STYLE}${text_key^}${DEFAULT}"
 			;;
 
 			"--i-android-dev-tools")
@@ -438,13 +462,23 @@ setSoftwaresToInstall(){
 			;;
 
 			"--i-jdk")
+				dev_mode=1
 				setMajorJavaLtsSupported "jdk"
 			;;
 			"--i-nodejs-lts")
 				DEV_TOOLS+=" nodejs"
 			;;
+			
+			"--i-gcc")
+				DEV_TOOLS+=" gcc"
+			;;
+
+			"--i-clang")
+				DEV_TOOLS+=" clang"
+			;;
+
 			*)
-				echo "Error: option invalid!"
+				echo "Invalid option: ${RED}$option${DEFAULT}!"
 				usage
 				exit 1
 			;;
@@ -541,6 +575,7 @@ setModeSoftwaresSelection(){
 main(){
 	local hello_message="$(<$MODULES_PATH/.hello-message.txt)"
 	local help_regex='(\-\-help|\-h)'
+	local dev_mode=0
 	echo "${LIGHT_BLUE}$hello_message${ITALIC}v${POSTINSTALL_VERSION}${DEFAULT}"
 	echo "Este script irá configurar seu Linux para uso"
 	
