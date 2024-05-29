@@ -580,6 +580,7 @@ main(){
 	echo "Este script irá configurar seu Linux para uso"
 	
 	if [ "$UID" = "0" ]; then
+		sudo apt-get update
 		setModeSoftwaresSelection
 		basicInstall
 	else
