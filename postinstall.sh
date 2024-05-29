@@ -328,11 +328,12 @@ runMenu(){
 		['Suporte MTP']="--i-mtp-spp"
 		['Multimidia']="--i-multimedia"
 		['Virtualbox']='--i-virtualbox'
-		['Softwares proprietários e fontes Microsoft TrueType ']='--i-non-free'
+		['Softwares proprietários e fontes Microsoft TrueType']='--i-non-free'
 		['4K Video Downloader plus']="--u-4k"
 	)
 
 	echo "Selecione o grupo de ${TEXT_STYLE}Ferramentas${DEFAULT} que deseja instalar"
+	echo ""
 	arrayMap install_list install_code class 'markSoftwareClassItem'
 
 	echo  -en " ${TEXT_STYLE}Ferramentas de desenvolvedor${DEFAULT} ${ITALIC}s/n?${DEFAULT} " 
