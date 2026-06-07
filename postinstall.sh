@@ -198,7 +198,7 @@ MakeSourcesListD(){
 
 	local target_signatures=(
 		"/usr/share/keyrings/google-chrome.gpg"
-		"/etc/apt/keyrings/sublimehq-pub.asc"
+		"/etc/apt/keyrings/sublimehq-pub.gpg"
 		"/usr/share/keyrings/microsoft.gpg"
 	)
 
@@ -235,8 +235,8 @@ MakeSourcesListD(){
 		"$(
 			MakeDeb822Str \
 				"deb" \
-				"https://download.sublimetext.com/apt/stable/" \
-				"apt/stable/"
+				"https://download.sublimetext.com/" \
+				"apt/stable/" \
 				"${target_signatures[1]}"
 		)"
 
