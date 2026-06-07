@@ -1,6 +1,6 @@
 <h1 align="center">
 	Linux Post Install<br/>
-	<a href="https://github.com/DanielOliveiraSouza/Linux-PostInstall/archive/v0.3.0.zip"><img src="https://img.shields.io/badge/Release-v0.3.0-green">
+	<a href="https://github.com/DanielOliveiraSouza/Linux-PostInstall/archive/v0.4.0.zip"><img src="https://img.shields.io/badge/Release-v0.4.0-green">
 	</a>
 </h1>
 
@@ -13,9 +13,9 @@
 Distribuições  Oficialmente Suportadas
 ----
 
-+	Debian 12
-+	Ubuntu 22.04
-+	Linux Mint 21 **Cinnamon**
++	Debian 13
++	Ubuntu 24.04
++	Linux Mint 22.3 **Cinnamon**
 
 
 Oque a ferramenta instala?
@@ -66,8 +66,12 @@ Esta ferramenta adiciona alguns repositórios para atualizar softwares
 +	Debian:
 	+	Sobrescreve o arquivo /etc/apt/sources.list e adiciona as fontes *nonfree*,*contrib*, *backports*
 
+
+A partir da v0.4.0, adicionamos suporte ao formato deb822
+
 Repositórios comuns adicionados
 ---
 
 +	Google Chrome
 +	Sublime-text
++ 	Visual Studio Code
