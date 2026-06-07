@@ -115,28 +115,35 @@ parse4KUrlVersion(){
 }
 #função para baixar e instalar o 4kvideodownloader
 install4KVideoDownloader(){
-	local product_videodownloader='https://www.4kdownload.com/pt-br/products/product-videodownloader'
-	local _4kvideodownload_url=$( 
-		wget -qO-  $product_videodownloader |
-		grep '"fullVersion":'|
-		grep "ubuntu_x64" |
-		awk -F':' ' { print $2 }'
-	)
+	local tmpfile=$(mktemp)
+	local uagent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.120 Safari/537.36"
+	local product_videodownloader='https://www.4kdownload.com/pt-br/products/videodownloader-8'
+	wget  --user-agent="$uagent" -qO-  $product_videodownloader   > $tmpfile
 
+	echo tmpfile=$tmpfile
+
+
+	sed "s|>|>\n|g" -i  $tmpfile 
+	_4kvideodownload_url="$( 
+		grep "https://dl\.4k" $tmpfile |
+		grep "\.deb" -m1 |   
+		sed 's/source=website//g;s/[>\?]//g' |
+		awk -F'"url":' '{ print $2 }' | 
+		awk -F',' ' { print $1 }' | 
+		sed 's/["]//g'
+
+	)"
+
+
+
+	echo try getting $_4kvideodownload_url
 	local _4kvideodownload_version=$(
 		echo "$_4kvideodownload_url" | 
 		awk -F'_' ' { print $2 }'		
 	)
 
-	_4kvideodownload_url=$(
-		echo $_4kvideodownload_url |
-		sed 's/"//g'|
-		awk -F'_' '{ print $1 }'
-	)
-
 	parse4KUrlVersion
 
-	local _4kvideodownload_url="https://dl.4kdownload.com/app/4k${_4kvideodownload_url}_${_4kvideodownload_version}-1_amd64.deb"
 	local _4kvideodownload_deb=$(
 		echo $_4kvideodownload_url |
 		awk -F'/' '{print $NF}'
@@ -148,12 +155,13 @@ install4KVideoDownloader(){
 	)"
 	
 	if ! get4kVideoDownloaderStatus; then 
-		Wget "$_4kvideodownload_url"
+		wget --user-agent="$uagent" "$_4kvideodownload_url"
 		dpkg -i $_4kvideodownload_deb
 		apt-get -f install -y 
 		rm $_4kvideodownload_deb
 	fi
 	
+	rm $tmpfile
 }
 
 
