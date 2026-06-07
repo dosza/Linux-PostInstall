@@ -156,23 +156,58 @@ install4KVideoDownloader(){
 	
 }
 
+
+
+MakeDeb822Str(){
+
+	local message=""
+
+
+	case $# in 
+
+		4)
+			printf "%b\n" "Types: $1\nURIs: $2\nSuites: $3\nSigned-By: $4"
+		;;
+
+		5)
+			printf "%b\n" "Types: $1\nURIs: $2\nSuites: $3\\nComponents: $4\\nSigned-By: $5"
+		;;
+		
+		6)
+			printf "%b\n" "Types: $1\\nURIs: $2\\nSuites: $3\\nComponents: $4\\nArchitectures: $5\\nSigned-By: $6"
+		;;
+
+		7)
+			printf "%b\n" "X-Repolib-Name: $7\\nTypes: $1\\nURIs: $2\\nSuites: $3\\nComponents: $4\\nArchitectures: $5\\nSigned-By: $6"
+		;;
+
+	*)
+		echo "invalid argument" >&2
+		exit 1
+	;;
+	esac
+}
+
 MakeSourcesListD(){
 
 	local repositories=(
-		'/etc/apt/sources.list.d/google-chrome.list'
-		'/etc/apt/sources.list.d/sublime-text.list'
-		"/etc/apt/sources.list.d/vscode.list"
+		'/etc/apt/sources.list.d/google-chrome.sources'
+		'/etc/apt/sources.list.d/sublime-text.sources'
+		"/etc/apt/sources.list.d/vscode.sources"
 	)
 
-	local mirrors=(
-		'deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main' 
-		'deb https://download.sublimetext.com/ apt/stable/' 
-		"deb [arch=amd64 signed-by=/etc/apt/keyrings/packages.microsoft.gpg]  https://packages.microsoft.com/repos/code stable main"
+	local target_signatures=(
+		"/usr/share/keyrings/google-chrome.gpg"
+		"/etc/apt/keyrings/sublimehq-pub.asc"
+		"/usr/share/keyrings/microsoft.gpg"
 	)
+
+	
 
 	local apt_key_url_repository=(
-		"https://download.sublimetext.com/sublimehq-pub.gpg"
+		
 		"https://dl-ssl.google.com/linux/linux_signing_key.pub"
+		"https://download.sublimetext.com/sublimehq-pub.gpg"
 		'https://packages.microsoft.com/keys/microsoft.asc'
 	)
 
@@ -180,8 +215,46 @@ MakeSourcesListD(){
 		"https://deb.nodesource.com/setup_lts.x"
 	)
 
-	ConfigureSourcesList apt_key_url_repository mirrors repositories
+
+	OLDIFS="$IFS"
+
+	IFS=$(printf "%b" "\n")
+
+	local mirrors=(
+		
+		"$(MakeDeb822Str \
+			"deb"  \
+			"https://dl.google.com/linux/chrome-stable/deb/"\
+			"stable" \
+			"main"  \
+			"amd64" \
+			"${target_signatures[0]}" \
+			"Google Chrome" \
+		)"
+
+		"$(
+			MakeDeb822Str \
+				"deb" \
+				"https://download.sublimetext.com/apt/stable/" \
+				"apt/stable/"
+				"${target_signatures[1]}"
+		)"
+
+		"$(
+			MakeDeb822Str \
+				"deb" \
+				"https://packages.microsoft.com/repos/code" \
+				"stable"  \
+				"main" \
+				"amd64" \
+				"${target_signatures[2]}"
+		)"
+	)
+
+	ConfigureSourcesListDeb822 apt_key_url_repository mirrors repositories target_signatures
 	ConfigureSourcesListByScript setup_scripts
+
+	IFS="$OLDIFS"
 }
 
 
