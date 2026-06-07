@@ -1,7 +1,7 @@
 #!/bin/bash
 # Autor: Daniel Oliveira Souza
 # Descrição: Faz a configuração de pós instalação do linux mint (ubuntu ou outro variante da família debian"
-# Versão: 0.3.0
+# Versão: 0.4.0
 #--------------------------------------------------------Variaveis --------------------------------------------------
 source /etc/os-release
 
@@ -15,8 +15,9 @@ source "$MODULES_PATH/ext-bash/extended-bash.sh"
 declare  -r DEBIAN_SUPPORT_FIRMWARE_REPO=12
 
 JAVA_LTS_VERSION=(21 17 11)
-POSTINSTALL_VERSION='0.3.0'
-APT_LIST="/etc/apt/sources.list"
+POSTINSTALL_VERSION='0.4.0'
+APT_LIST_LEGACY="/etc/apt/sources.list"
+APT_LIST="/etc/apt/sources.list.d/debian.sources"
 APT_MODIFICATIONS=""
 LINUX_MODIFICATIONS=""
 WEB_BROWSER="google-chrome-stable"
@@ -377,20 +378,6 @@ setMajorJavaLtsSupported(){
 }
 
 
-configureDebianNonFreeFirmwareRepository(){
-	local debian_id="${DEBIAN_VERSION//\.*/}"
-	local non_free_pattern='(non\-free\-firmware)'
-	
-	[ $debian_id -lt $DEBIAN_SUPPORT_FIRMWARE_REPO ] && return 
-
-	arrayMap SOURCES_LIST_OFICIAL_STR line index '{
-		[[ "$line" =~ $non_free_pattern ]] && continue
-		SOURCES_LIST_OFICIAL_STR[$index]="$line non-free-firmware"
-	}'
-	
-}
-
-
 isYes(){
 	read answer
 	[ "${answer,,}" = "s" ] || [ "${answer,,}" = "y" ]
@@ -588,24 +575,29 @@ configureDebian(){
 	APT_MODIFICATIONS+="libreoffice libreoffice-style-breeze libreoffice-writer libreoffice-calc libreoffice-impress"
 
 	SOURCES_LIST_OFICIAL_STR=(
-		"#Fonte de aplicativos apt"  
-		"deb http://ftp.br.debian.org/debian/ ${DEBIAN_VERSION} main contrib non-free"  
-		"deb-src http://ftp.br.debian.org/debian/ $DEBIAN_VERSION main contrib non-free"  
-		""  
-		"deb http://ftp.br.debian.org/debian-security/ ${DEBIAN_VERSION}-security main contrib non-free"  
-		"deb-src http://ftp.br.debian.org/debian-security/ ${DEBIAN_VERSION}-security main contrib non-free"  
-		""  
-		"# $DEBIAN_VERSION-updates, previously known as 'volatile'"  
-		"deb http://ftp.br.debian.org/debian/ ${DEBIAN_VERSION}-updates main contrib non-free"  
-		"deb-src http://ftp.br.debian.org/debian/ ${DEBIAN_VERSION}-updates main contrib non-free"  
-		""  
-		"#Adiciona fontes extras ao debian"  
-		"# debian backports"  
-		"deb http://ftp.debian.org/debian ${DEBIAN_VERSION}-backports main contrib non-free" 
-		"deb-src http://ftp.debian.org/debian ${DEBIAN_VERSION}-backports main contrib non-free" 
+		'# /etc/apt/sources.list.d/debian.sources'
+		'# Debian Stable'
+		''
+		"Types: deb deb-src"
+		"URIs: https://deb.debian.org/debian"
+		Suites: ${DEBIAN_VERSION} ${DEBIAN_VERSION}-updates  ${DEBIAN_VERSION}-backports
+		"Components: main contrib non-free non-free-firmware"
+		"Enabled: yes"
+		"Signed-By: /usr/share/keyrings/debian-archive-keyring.gpg"
+		""
+		"Types: deb deb-src"
+		"URIs: https://security.debian.org/debian-security"
+		"Suites: ${DEBIAN_VERSION}-security"
+		"Components: main contrib non-free non-free-firmware"
+		"Enabled: yes"
+		"Signed-By: /usr/share/keyrings/debian-archive-keyring.gpg"
 	)
 
-	configureDebianNonFreeFirmwareRepository
+	if [ -e APT_LIST_LEGACY ]; then
+		apt modernize-sources
+	fi
+
+
 	getAptKeys APT_EXTRA_KEYS
 	WriterFileln $APT_LIST SOURCES_LIST_OFICIAL_STR
 	MakeSourcesListD $DEBIAN_VERSION 0
