@@ -1,0 +1,85 @@
+name: Release On PR Close
+
+on:
+  pull_request:
+    branches:
+      - master
+    types:
+      - closed
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: recursive
+
+      - name: Install makeself
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y makeself
+
+      - name: Build makeself package
+        id: build
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          version="$(grep -E "^POSTINSTALL_VERSION=" postinstall.sh | head -n1 | cut -d"'" -f2)"
+          if [[ -z "${version}" ]]; then
+            echo "Nao foi possivel extrair POSTINSTALL_VERSION de postinstall.sh" >&2
+            exit 1
+          fi
+
+          tag="v${version}-run${GITHUB_RUN_NUMBER}"
+          artifact="linux-postinstall-${tag}.run"
+
+          mkdir -p dist/package
+          cp -a postinstall.sh README.md ext-bash dist/package/
+
+          cat > dist/package/start.sh <<'EOF'
+#!/usr/bin/env bash
+set -euo pipefail
+echo "Pacote Linux-PostInstall extraido com sucesso."
+echo "Para executar: sudo bash postinstall.sh"
+EOF
+          chmod +x dist/package/start.sh
+
+          makeself \
+            --nox11 \
+            --tar-format posix \
+            dist/package \
+            "dist/${artifact}" \
+            "Linux PostInstall ${tag}" \
+            ./start.sh
+
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+          echo "tag=${tag}" >> "$GITHUB_OUTPUT"
+          echo "artifact=${artifact}" >> "$GITHUB_OUTPUT"
+
+      - name: Publish GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          tag="${{ steps.build.outputs.tag }}"
+          artifact="${{ steps.build.outputs.artifact }}"
+
+          if gh release view "$tag" >/dev/null 2>&1; then
+            gh release upload "$tag" "dist/${artifact}" --clobber
+          else
+            gh release create "$tag" \
+              "dist/${artifact}" \
+              --title "Linux PostInstall ${tag}" \
+              --notes "Release automatica gerada apos merge de PR no branch master."
+          fi
