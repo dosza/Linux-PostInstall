@@ -1,6 +1,6 @@
 <h1 align="center">
 	Linux Post Install<br/>
-	<a href="https://github.com/DanielOliveiraSouza/Linux-PostInstall/archive/v0.4.0.zip"><img src="https://img.shields.io/badge/Release-v0.4.0-green">
+	<a href="https://github.com/DanielOliveiraSouza/Linux-PostInstall/archive/v0..zip"><img src="https://img.shields.io/badge/Release-v0.4.1-green">
 	</a>
 </h1>
 
@@ -83,7 +83,7 @@ Esta ferramenta adiciona alguns repositórios para atualizar softwares
 	+	Sobrescreve o arquivo /etc/apt/sources.list e adiciona as fontes *nonfree*,*contrib*, *backports*
 
 
-A partir da v0.4.0, adicionamos suporte ao formato deb822
+A partir da v0.4.1, adicionamos suporte ao formato deb822
 
 Repositórios comuns adicionados
 ---

@@ -1,7 +1,7 @@
 #!/bin/bash
 # Autor: Daniel Oliveira Souza
 # Descrição: Faz a configuração de pós instalação do linux mint (ubuntu ou outro variante da família debian"
-# Versão: 0.4.0
+# Versão: 0.4.1
 #--------------------------------------------------------Variaveis --------------------------------------------------
 source /etc/os-release
 

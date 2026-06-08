@@ -33,7 +33,7 @@ jobs:
           set -euo pipefail
 
           version="${GITHUB_RUN_NUMBER}"
-          tag="build-${version}"
+          tag="v${version}"
           artifact="linux-postinstall-${version}.run"
 
           mkdir -p package
