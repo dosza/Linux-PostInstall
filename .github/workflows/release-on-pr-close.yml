@@ -42,7 +42,7 @@ jobs:
           artifact="linux-postinstall-${version}.run"
 
           mkdir -p package
-          cp -a postinstall.sh README.md ext-bash package/
+          cp -a postinstall.sh README.md ext-bash .hello-message.txt package/
 
           makeself \
             --nox11 \
