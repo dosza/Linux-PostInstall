@@ -260,7 +260,7 @@ MakeSourcesListD(){
 		)"
 	)
 
-	ConfigureSourcesListDeb822 apt_key_url_repository mirrors repositories target_signatures
+	ConfigureSourcesListDeb822 apt_key_url_repository repositories mirrors target_signatures
 	ConfigureSourcesListByScript setup_scripts
 
 	IFS="$OLDIFS"
