@@ -169,25 +169,30 @@ install4KVideoDownloader(){
 
 MakeDeb822Str(){
 
-	local message=""
-
-
+	local types="Types"
+	local suites="Suites"
+	local uris="URIs"
+	local components="Components"
+	local arch="Architectures"
+	local signed_by="Signed-by"
+	local x_repo_name="X-Repolib-Name"
+	
 	case $# in 
 
 		4)
-			printf "%b\n" "Types: $1\nURIs: $2\nSuites: $3\nSigned-By: $4"
+			printf "%s\n" "${types}: $1\n${uris}: $2\n${suites}: $3\n${signed_by}: $4"
 		;;
 
 		5)
-			printf "%b\n" "Types: $1\nURIs: $2\nSuites: $3\\nComponents: $4\\nSigned-By: $5"
+			printf "%s\n" "${types}: $1\n${uris}: $2\n${suites}: $3\n${components}: $4\n${signed_by}: $5"
 		;;
 		
 		6)
-			printf "%b\n" "Types: $1\\nURIs: $2\\nSuites: $3\\nComponents: $4\\nArchitectures: $5\\nSigned-By: $6"
+			printf "%s\n" "${types}: $1\n${uris}: $2\n${suites}: $3\n${components}: $4\n${arch}: $5\n${signed_by}: $6"
 		;;
 
 		7)
-			printf "%b\n" "X-Repolib-Name: $7\\nTypes: $1\\nURIs: $2\\nSuites: $3\\nComponents: $4\\nArchitectures: $5\\nSigned-By: $6"
+			printf "%s\n" "${x_repo_name}: $7\n${types}: $1\n${uris}: $2\n${suites}: $3\n${components}: $4\n${arch}: $5\n${signed_by}: $6"
 		;;
 
 	*)
@@ -199,25 +204,17 @@ MakeDeb822Str(){
 
 MakeSourcesListD(){
 
-	local repositories=(
-		'/etc/apt/sources.list.d/google-chrome.sources'
-		'/etc/apt/sources.list.d/sublime-text.sources'
-		"/etc/apt/sources.list.d/vscode.sources"
-	)
-
-	local target_signatures=(
-		"/usr/share/keyrings/google-chrome.gpg"
-		"/etc/apt/keyrings/sublimehq-pub.gpg"
-		"/usr/share/keyrings/microsoft.gpg"
-	)
-
-	
-
 	local apt_key_url_repository=(
 		
 		"https://dl-ssl.google.com/linux/linux_signing_key.pub"
 		"https://download.sublimetext.com/sublimehq-pub.gpg"
 		'https://packages.microsoft.com/keys/microsoft.asc'
+	)
+
+	local repository_list_path=(
+		'/etc/apt/sources.list.d/google-chrome.sources'
+		'/etc/apt/sources.list.d/sublime-text.sources'
+		"/etc/apt/sources.list.d/vscode.sources"
 	)
 
 	local setup_scripts=(
@@ -237,7 +234,7 @@ MakeSourcesListD(){
 			"stable" \
 			"main"  \
 			"amd64" \
-			"${target_signatures[0]}" \
+			"/usr/share/keyrings/google-chrome.gpg" \
 			"Google Chrome" \
 		)"
 
@@ -246,7 +243,7 @@ MakeSourcesListD(){
 				"deb" \
 				"https://download.sublimetext.com/" \
 				"apt/stable/" \
-				"${target_signatures[1]}"
+				"/etc/apt/keyrings/sublimehq-pub.gpg"
 		)"
 
 		"$(
@@ -256,11 +253,11 @@ MakeSourcesListD(){
 				"stable"  \
 				"main" \
 				"amd64" \
-				"${target_signatures[2]}"
+				"/usr/share/keyrings/microsoft.gpg"
 		)"
 	)
 
-	ConfigureSourcesListDeb822 apt_key_url_repository repositories mirrors target_signatures
+	ConfigureSourcesList apt_key_url_repository repository_list_path mirrors
 	ConfigureSourcesListByScript setup_scripts
 
 	IFS="$OLDIFS"
@@ -583,14 +580,14 @@ configureDebian(){
 		Suites: ${DEBIAN_VERSION} ${DEBIAN_VERSION}-updates  ${DEBIAN_VERSION}-backports
 		"Components: main contrib non-free non-free-firmware"
 		"Enabled: yes"
-		"Signed-By: /usr/share/keyrings/debian-archive-keyring.gpg"
+		"Signed-by: /usr/share/keyrings/debian-archive-keyring.gpg"
 		""
 		"Types: deb deb-src"
 		"URIs: https://security.debian.org/debian-security"
 		"Suites: ${DEBIAN_VERSION}-security"
 		"Components: main contrib non-free non-free-firmware"
 		"Enabled: yes"
-		"Signed-By: /usr/share/keyrings/debian-archive-keyring.gpg"
+		"Signed-by: /usr/share/keyrings/debian-archive-keyring.gpg"
 	)
 
 	if [ -e APT_LIST_LEGACY ]; then
