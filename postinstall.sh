@@ -180,19 +180,19 @@ MakeDeb822Str(){
 	case $# in 
 
 		4)
-			printf "%s\n" "${types}: $1\n${uris}: $2\n${suites}: $3\n${signed_by}: $4"
+			echo "${types}: $1\n${uris}: $2\n${suites}: $3\n${signed_by}: $4"
 		;;
 
 		5)
-			printf "%s\n" "${types}: $1\n${uris}: $2\n${suites}: $3\n${components}: $4\n${signed_by}: $5"
+			echo "${types}: $1\n${uris}: $2\n${suites}: $3\n${components}: $4\n${signed_by}: $5"
 		;;
 		
 		6)
-			printf "%s\n" "${types}: $1\n${uris}: $2\n${suites}: $3\n${components}: $4\n${arch}: $5\n${signed_by}: $6"
+			echo "${types}: $1\n${uris}: $2\n${suites}: $3\n${components}: $4\n${arch}: $5\n${signed_by}: $6"
 		;;
 
 		7)
-			printf "%s\n" "${x_repo_name}: $7\n${types}: $1\n${uris}: $2\n${suites}: $3\n${components}: $4\n${arch}: $5\n${signed_by}: $6"
+			echo "${x_repo_name}: $7\n${types}: $1\n${uris}: $2\n${suites}: $3\n${components}: $4\n${arch}: $5\n${signed_by}: $6"
 		;;
 
 	*)
