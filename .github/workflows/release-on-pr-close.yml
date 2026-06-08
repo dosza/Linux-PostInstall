@@ -32,8 +32,13 @@ jobs:
         run: |
           set -euo pipefail
 
-          version="${GITHUB_RUN_NUMBER}"
-          tag="build-${version}"
+          version="$(sed -n "s/^POSTINSTALL_VERSION='\([^']*\)'$/\1/p" postinstall.sh | head -n1)"
+          if [[ -z "${version}" ]]; then
+            echo "Nao foi possivel extrair POSTINSTALL_VERSION de postinstall.sh" >&2
+            exit 1
+          fi
+
+          tag="v${version}"
           artifact="linux-postinstall-${version}.run"
 
           mkdir -p package
