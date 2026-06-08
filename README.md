@@ -26,6 +26,22 @@ Oque a ferramenta instala?
 +	Softwares  uteis (para extrair arquivos rar,7zip,exfat,source,Google Chrome,entre outros)
 
 
+Clonagem do repositório (com submodules)
+---
+Para garantir que dependências em submodules sejam baixadas corretamente, clone o projeto com:
+
+```console
+user@pc:~$ git clone --recurse-submodules https://github.com/DanielOliveiraSouza/Linux-PostInstall.git
+user@pc:~$ cd Linux-PostInstall
+```
+
+Se você já clonou o repositório sem submodules, execute:
+
+```console
+user@pc:~/Linux-PostInstall$ git submodule update --init --recursive
+```
+
+
 Como usar?
 ---
 
@@ -75,3 +91,4 @@ Repositórios comuns adicionados
 +	Google Chrome
 +	Sublime-text
 + 	Visual Studio Code
++	Nodejs
