@@ -15,7 +15,7 @@ source "$MODULES_PATH/ext-bash/extended-bash.sh"
 declare  -r DEBIAN_SUPPORT_FIRMWARE_REPO=12
 
 JAVA_LTS_VERSION=(21 17 11)
-POSTINSTALL_VERSION='0.4.0'
+POSTINSTALL_VERSION='0.4.1'
 APT_LIST_LEGACY="/etc/apt/sources.list"
 APT_LIST="/etc/apt/sources.list.d/debian.sources"
 APT_MODIFICATIONS=""
