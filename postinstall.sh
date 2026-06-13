@@ -1,7 +1,7 @@
 #!/bin/bash
 # Autor: Daniel Oliveira Souza
 # Descrição: Faz a configuração de pós instalação do linux mint (ubuntu ou outro variante da família debian"
-# Versão: 0.4.2
+# Versão: 0.4.3
 #--------------------------------------------------------Variaveis --------------------------------------------------
 source /etc/os-release
 
@@ -15,7 +15,7 @@ source "$MODULES_PATH/ext-bash/extended-bash.sh"
 declare  -r DEBIAN_SUPPORT_FIRMWARE_REPO=12
 
 JAVA_LTS_VERSION=(21 17 11)
-POSTINSTALL_VERSION='0.4.2'
+POSTINSTALL_VERSION='0.4.3'
 APT_LIST_LEGACY="/etc/apt/sources.list"
 APT_LIST="/etc/apt/sources.list.d/debian.sources"
 APT_MODIFICATIONS=""
