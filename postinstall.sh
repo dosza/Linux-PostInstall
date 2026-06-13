@@ -1,7 +1,7 @@
 #!/bin/bash
 # Autor: Daniel Oliveira Souza
 # Descrição: Faz a configuração de pós instalação do linux mint (ubuntu ou outro variante da família debian"
-# Versão: 0.4.2
+# Versão: 0.4.3
 #--------------------------------------------------------Variaveis --------------------------------------------------
 source /etc/os-release
 
@@ -15,7 +15,7 @@ source "$MODULES_PATH/ext-bash/extended-bash.sh"
 declare  -r DEBIAN_SUPPORT_FIRMWARE_REPO=12
 
 JAVA_LTS_VERSION=(21 17 11)
-POSTINSTALL_VERSION='0.4.2'
+POSTINSTALL_VERSION='0.4.3'
 APT_LIST_LEGACY="/etc/apt/sources.list"
 APT_LIST="/etc/apt/sources.list.d/debian.sources"
 APT_MODIFICATIONS=""
@@ -41,7 +41,6 @@ SYSTEM=" gparted dnsmasq-base bleachbit  apt-transport-https "
 
 ARGV=($@)
 
-UNSUPPORTED_JAVA_PPA=/etc/apt/sources.list.d/webupd8team-java.list
 VIRTUALBOX_VERSION=virtualbox
 PROGRAM_REMOVE=('4kvideodownloader')
 
@@ -49,6 +48,17 @@ LIGHT_BLUE=$'\e[1;36m'
 ITALIC=$'\e[1;3m'
 TEXT_STYLE="${LIGHT_BLUE}${ITALIC}"
 
+
+checkReadFileStatus(){
+	
+	[ ! -e "$1" ] && return $BASH_FALSE
+
+	local permissions=$( stat -c  '%a' "$1 ")
+	local read_permissions=644
+
+	[ "$permissions" = "$read_permissions" ]
+
+}
 #still compatible older installations
 #set virtualbox from Oracle repo, if is installed
 getCurrentVirtualBoxInstalled(){
@@ -259,6 +269,10 @@ MakeSourcesListD(){
 
 	ConfigureSourcesList apt_key_url_repository repository_list_path mirrors
 	ConfigureSourcesListByScript setup_scripts
+	
+	arrayMap repository_list_path repo_path '{
+		chmod 644 $repo_path
+	}'
 
 	IFS="$OLDIFS"
 }
@@ -353,7 +367,6 @@ DebianExtraActions(){
 		echo 'kernel.dmesg_restrict=0' | tee -a /etc/sysctl.d/99-sysctl.conf
 	fi
 
-	[ -e $UNSUPPORTED_JAVA_PPA ] && rm $UNSUPPORTED_JAVA_PPA
 }
 
 
@@ -419,6 +432,7 @@ runMenu(){
 	echo  -en " ${TEXT_STYLE}Ferramentas de desenvolvedor${DEFAULT} ${ITALIC}s/n?${DEFAULT} " 
 	if isYes; then
 		mark_to_install+=("--i-dev")
+		
 		arrayMap dev_tools_list install_code class '{
 			echo -en "\t"
 			markSoftwareClassItem
@@ -596,7 +610,7 @@ configureDebian(){
 
 
 	getAptKeys APT_EXTRA_KEYS
-	WriterFileln $APT_LIST SOURCES_LIST_OFICIAL_STR
+	WriterFileln $APT_LIST SOURCES_LIST_OFICIAL_STR && chmod 644 $APT_LIST
 	MakeSourcesListD $DEBIAN_VERSION 0
 	DebianExtraActions
 }
