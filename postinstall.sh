@@ -48,6 +48,17 @@ LIGHT_BLUE=$'\e[1;36m'
 ITALIC=$'\e[1;3m'
 TEXT_STYLE="${LIGHT_BLUE}${ITALIC}"
 
+
+checkReadFileStatus(){
+	
+	[ ! -e "$1" ] && return $BASH_FALSE
+
+	local permissions=$( stat -c  '%a' "$1 ")
+	local read_permissions=644
+
+	[ "$permissions" = "$read_permissions" ]
+
+}
 #still compatible older installations
 #set virtualbox from Oracle repo, if is installed
 getCurrentVirtualBoxInstalled(){
@@ -258,6 +269,10 @@ MakeSourcesListD(){
 
 	ConfigureSourcesList apt_key_url_repository repository_list_path mirrors
 	ConfigureSourcesListByScript setup_scripts
+	
+	arrayMap repository_list_path repo_path '{
+		chmod 644 $repo_path
+	}'
 
 	IFS="$OLDIFS"
 }
@@ -417,6 +432,7 @@ runMenu(){
 	echo  -en " ${TEXT_STYLE}Ferramentas de desenvolvedor${DEFAULT} ${ITALIC}s/n?${DEFAULT} " 
 	if isYes; then
 		mark_to_install+=("--i-dev")
+		
 		arrayMap dev_tools_list install_code class '{
 			echo -en "\t"
 			markSoftwareClassItem
@@ -594,7 +610,7 @@ configureDebian(){
 
 
 	getAptKeys APT_EXTRA_KEYS
-	WriterFileln $APT_LIST SOURCES_LIST_OFICIAL_STR
+	WriterFileln $APT_LIST SOURCES_LIST_OFICIAL_STR && chmod 644 $APT_LIST
 	MakeSourcesListD $DEBIAN_VERSION 0
 	DebianExtraActions
 }
