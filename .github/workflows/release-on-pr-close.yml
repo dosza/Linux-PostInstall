@@ -32,7 +32,7 @@ jobs:
         run: |
           set -euo pipefail
 
-          version="$(grep "^POSTINSTALL_VERSION=| awk -F= '{ print $2 }' )"
+          version="$(grep "^POSTINSTALL_VERSION=" | awk -F= '{ print $2 }' )"
           if [[ -z "${version}" ]]; then
             echo "Nao foi possivel extrair POSTINSTALL_VERSION de postinstall.sh" >&2
             exit 1
