@@ -41,7 +41,6 @@ SYSTEM=" gparted dnsmasq-base bleachbit  apt-transport-https "
 
 ARGV=($@)
 
-UNSUPPORTED_JAVA_PPA=/etc/apt/sources.list.d/webupd8team-java.list
 VIRTUALBOX_VERSION=virtualbox
 PROGRAM_REMOVE=('4kvideodownloader')
 
@@ -353,7 +352,6 @@ DebianExtraActions(){
 		echo 'kernel.dmesg_restrict=0' | tee -a /etc/sysctl.d/99-sysctl.conf
 	fi
 
-	[ -e $UNSUPPORTED_JAVA_PPA ] && rm $UNSUPPORTED_JAVA_PPA
 }
 
 
